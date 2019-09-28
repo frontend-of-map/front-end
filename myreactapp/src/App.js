@@ -78,19 +78,10 @@ class Sliders extends React.Component{
 </div>)
   
 }}
-class Child extends React.createClass{
-  render() {
-    return (<div>I am the child</div>)
-  }
-}
+
 class Frontend extends React.Component{
   constructor(props){
     super(props);
-    this.state={childVisible:false};
-    this.onClick=this.onClick.bind(this);
-  }
-  onClick() {
-    this.setState({childVisible: !this.state.childVisible});
   }
   render(){
     return(
@@ -103,12 +94,7 @@ class Frontend extends React.Component{
       <li><input type="checkbox" name="creature" value="sound"/>声环境地图</li>
       <Sliders/>
       </ul>
-      <div onClick={this.onClick}>物种</div>
-      {
-          this.state.childVisible
-            ? <Child />
-            : null
-      }
+      <div >物种</div>
       <input type="checkbox" className="creature" value="bailu"/>白鹭<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>燕雀<input 
