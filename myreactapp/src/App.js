@@ -78,24 +78,25 @@ class Sliders extends React.Component{
 </div>)
   
 }}
-
-class Frontend extends React.Component{
-  constructor(props){
-    super(props);
-  }
+class Variousmaps extends React.Component{
   render(){
     return(
       <div>
-      <ul>
-      <li><input type="checkbox" name="creature" value="light"/>光环境地图
-      <Sliders/></li>
-      <li><input type="checkbox" name="creature" value="thermo"/>热环境地图</li>
+      <input type="checkbox" name="creature" value="light"/>光环境地图
       <Sliders/>
-      <li><input type="checkbox" name="creature" value="sound"/>声环境地图</li>
+      <input type="checkbox" name="creature" value="thermo"/>热环境地图
       <Sliders/>
-      </ul>
-      <div >物种</div>
-      <input type="checkbox" className="creature" value="bailu"/>白鹭<input 
+      <input type="checkbox" name="creature" value="sound"/>声环境地图
+      <Sliders/>
+      </div>
+    );
+  }
+}
+class Animals extends React.Component{
+  render(){
+    return(
+    <div>
+    <input type="checkbox" className="creature" value="bailu"/>白鹭<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>燕雀<input 
         className="yuzhi" value="100"/>阈值<br/>
@@ -103,6 +104,33 @@ class Frontend extends React.Component{
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>其他<input 
         className="yuzhi" value="100"/>阈值<br/>
+    </div>)
+  }
+}
+class Frontend extends React.Component{
+  constructor(props){
+    super(props);
+    this.state={firstVisible:true,secondVisible:true};
+    this.onfirstClick=this.onfirstClick.bind(this);
+    this.onsecondClick=this.onsecondClick.bind(this);
+  }
+  onfirstClick(){
+    this.setState({firstVisible: !this.state.firstVisible});
+  }
+  onsecondClick(){
+    this.setState({secondVisible: !this.state.secondVisible});
+  }
+  render(){
+    return(
+      <div>
+      <div onClick={this.onfirstClick}>物理环境地图</div>
+      {
+        this.state.firstVisible?<Variousmaps/>:null
+      }
+      <div onClick={this.onsecondClick}>物种</div>
+      {
+        this.state.secondVisible?<Animals/>:null
+      }
       </div>
     )
   }
