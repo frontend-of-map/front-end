@@ -114,6 +114,7 @@ class Frontend extends React.Component{
     this.onfirstClick=this.onfirstClick.bind(this);
     this.onsecondClick=this.onsecondClick.bind(this);
   }
+
   onfirstClick(){
     this.setState({firstVisible: !this.state.firstVisible});
   }

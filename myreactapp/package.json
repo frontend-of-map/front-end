@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "closure-util": "^1.26.0",
     "jquery": "^3.4.1",
+    "ol": "^6.0.0",
+    "openlayers": "^4.6.5",
     "react": "^16.9.0",
     "react-compound-slider": "^2.3.0",
     "react-dom": "^16.9.0",
