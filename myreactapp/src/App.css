@@ -27,3 +27,10 @@ li{
 #input{
   width: 100px;
 }
+#choices{
+  background-color: white;
+  width:250px;
+}
+.title{
+  background-color: lightgrey;
+}

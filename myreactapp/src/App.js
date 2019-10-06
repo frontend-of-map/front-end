@@ -1,8 +1,7 @@
-import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Slider, Handles, Tracks } from 'react-compound-slider'
-
+import React, {Component} from 'react';
 export function Handle({ // your handle component
   handle: { id, value, percent }, 
   getHandleProps
@@ -13,7 +12,7 @@ export function Handle({ // your handle component
         left: `${percent}%`,
         position: 'absolute',
         marginLeft: -15,
-        marginTop: 3,
+        marginTop: 15,
         zIndex: 2,
         width: 15,
         height: 15,
@@ -26,7 +25,7 @@ export function Handle({ // your handle component
       }}
       {...getHandleProps(id)}
     >
-      <div style={{ fontFamily: 'Roboto', fontSize: 11, marginTop: -35 }}>
+      <div style={{ fontFamily: 'Roboto', fontSize: 11, marginTop: -18 }}>
         {value}
       </div>
     </div>
@@ -41,13 +40,13 @@ class Sliders extends React.Component{
   position: 'relative',
   width: '80%',
   height: 30,
-  border: '1px solid steelblue',
+  backgroundColor:'#FFFFFF'
   }
   const railStyle = { 
   position: 'absolute',
-  width: '80%',
-  height: 5,
-  marginTop: 5,
+  width: '100%',
+  height: 10,
+  marginTop: 17,
   borderRadius: 5,
   backgroundColor: '#8B9CB6',
   display:'inline'
@@ -123,12 +122,12 @@ class Frontend extends React.Component{
   }
   render(){
     return(
-      <div>
-      <div onClick={this.onfirstClick}>物理环境地图</div>
+      <div id="choices">
+      <div onClick={this.onfirstClick} className="title">物理环境地图</div>
       {
         this.state.firstVisible?<Variousmaps/>:null
       }
-      <div onClick={this.onsecondClick}>物种</div>
+      <div onClick={this.onsecondClick} className="title">物种</div>
       {
         this.state.secondVisible?<Animals/>:null
       }
@@ -136,4 +135,27 @@ class Frontend extends React.Component{
     )
   }
 }
-export default Frontend;
+
+
+class App extends Component{
+  componentDidMount(){
+    console.log(window)
+    const {BMap,BAMP_STATUS_SUCCESS} = window
+    var map = new BMap.Map("allmap");
+    map.centerAndZoom(new BMap.Point(116.404, 39.915),11);
+
+    var p1 = new BMap.Point(116.301934,39.977552);
+    var p2 = new BMap.Point(116.508328,39.919141);
+
+    var driving = new BMap.DrivingRoute(map,{renderOptions:{map:map,autoViewport: true}});
+    driving.search(p1,p2);
+  }
+  render(){
+    return (
+          <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> 
+          <Frontend/>
+          </div>
+    )
+  }
+}
+export default App;
