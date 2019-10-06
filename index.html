@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+		body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+	</style>
+  <script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=pdSgmLr6GQSeiDqpaYqiLM8yoScrrON5"></script>
+  
+	<title>地图</title>
+</head>
+<body>
+    
+    <form method="post" action="" name="theForm" enctype="multipart/form-data" onsubmit="return validate()">
+      <table cellspacing="1" cellpadding="3" width="100%">
+          <tr>
+              <td class="label">经度</td>
+              <td><input type="text" name="lng" id="lng" value="" />
+              </td>
+          </tr>
+          <tr>
+              <td class="label">纬度</td>
+              <td><input type="text" name="lat" id="lat" value="" />
+              </td>
+          </tr>
+          <tr>
+              <td class="label">地址</td>
+              <td>
+                  <input type='text' value='' name='sever_add' id='sever_add'>
+                  <input type='button' value='点击显示地图获取地址经纬度' id='open'>
+              </td>
+          </tr>
+      </table>
+  </form>
+	<div id="allmap"></div>
+</body>
+</html>
+
+<script type="text/javascript">
+	// 百度地图API功能
+	var map = new BMap.Map("allmap");            // 创建Map实例
+  map.centerAndZoom("厦门",15);  //初始化时，即可设置中心点和地图缩放级别。
+  var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+	var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+	
+  map.addControl(top_left_control);        
+	map.addControl(top_left_navigation);     
+  
+  // 定义一个控件类,即function
+	function ZoomControl(){
+	  // 默认停靠位置和偏移量
+	  this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+	  this.defaultOffset = new BMap.Size(100, 100);
+  }
+  // 通过JavaScript的prototype属性继承于BMap.Control
+  ZoomControl.prototype = new BMap.Control();
+  
+  // 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
+	// 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
+	ZoomControl.prototype.initialize = function(map){
+	  // 创建一个DOM元素
+	  var div = document.createElement("div");
+	
+	  // 添加文字说明
+	  div.appendChild(document.createTextNode("量尺"));
+	  // 设置样式
+	  div.style.cursor = "pointer";
+	  div.style.border = "1px solid gray";
+    div.style.backgroundColor = "white";
+    
+	  // 绑定事件,点击一次打开量尺
+	  div.onclick = function(e){
+      var myDis = new BMapLib.DistanceTool(map);
+	    
+		  myDis.open();  //开启鼠标测距
+		  //myDis.close();  //关闭鼠标测距
+	  
+	  }
+	  // 添加DOM元素到地图中
+	  map.getContainer().appendChild(div);
+	  // 将DOM元素返回
+	  return div;
+	}
+	// 创建控件
+  var myZoomCtrl = new ZoomControl();
+  map.addControl(myZoomCtrl);
+
+  function validate() {
+        var sever_add = document.getElementsByName('sever_add')[0].value;
+        if (isNull(sever_add)) {
+            alert('请选择地址');
+            return false;
+        }
+        return true;
+    }
+
+    //判断是否是空  
+    function isNull(a) {
+        return (a == '' || typeof(a) == 'undefined' || a == null) ? true : false;
+    }
+
+    document.getElementById('open').onclick = function() {
+        if (document.getElementById('allmap').style.display == 'none') {
+            document.getElementById('allmap').style.display = 'block';
+        } else {
+            document.getElementById('allmap').style.display = 'none';
+        }
+    }
+
+
+    var geoc = new BMap.Geocoder(); //地址解析对象  
+    var markersArray = [];
+    var geolocation = new BMap.Geolocation();
+    map.addEventListener("click", showInfo);
+
+
+    //清除标识  
+    function clearOverlays() {
+        if (markersArray) {
+            for (i in markersArray) {
+                map.removeOverlay(markersArray[i])
+            }
+        }
+    }
+    //地图上标注  
+    function addMarker(point) {
+        var marker = new BMap.Marker(point);
+        markersArray.push(marker);
+        clearOverlays();
+        map.addOverlay(marker);
+    }
+
+    //点击地图时间处理  
+    function showInfo(e) {
+        document.getElementById('lng').value = e.point.lng;
+        document.getElementById('lat').value = e.point.lat;
+        geoc.getLocation(e.point, function(rs) {
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            document.getElementById('sever_add').value = address;
+        });
+        addMarker(e.point);
+    }
+
+  map.enableScrollWheelZoom(true);
+	map.disableDragging();     //禁止拖拽
+	setTimeout(function(){
+	   map.enableDragging();   //两秒后开启拖拽
+	   //map.enableInertialDragging();   //两秒后开启惯性拖拽
+  }, 2000);
+  
+  
+</script>
