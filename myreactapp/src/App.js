@@ -2,6 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 import { Slider, Handles, Tracks } from 'react-compound-slider'
 import React, {Component} from 'react';
+
+//open layers and styles
+var ol = require('openlayers');
+require('openlayers/css/ol.css');
 export function Handle({ // your handle component
   handle: { id, value, percent }, 
   getHandleProps
@@ -80,7 +84,7 @@ class Sliders extends React.Component{
 class Variousmaps extends React.Component{
   render(){
     return(
-      <div>
+      <div id="vmaps">
       <input type="checkbox" name="creature" value="light"/>光环境地图
       <Sliders/>
       <input type="checkbox" name="creature" value="thermo"/>热环境地图
@@ -94,7 +98,7 @@ class Variousmaps extends React.Component{
 class Animals extends React.Component{
   render(){
     return(
-    <div>
+    <div id="animals">
     <input type="checkbox" className="creature" value="bailu"/>白鹭<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>燕雀<input 
@@ -136,7 +140,7 @@ class Frontend extends React.Component{
   }
 }
 
-
+/*
 class App extends Component{
   componentDidMount(){
     console.log(window)
@@ -153,9 +157,59 @@ class App extends Component{
   render(){
     return (
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> 
-          <Frontend/>
+          
           </div>
     )
   }
 }
 export default App;
+*/
+class Map extends React.Component {
+  
+  //other functions eliminated for brevity
+
+  componentDidMount() {
+
+    // create feature layer and vector source
+    var featuresLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features:[],
+      })
+    });
+
+    // create map object with feature layer
+    var map = new ol.Map({
+      target: 'map',
+      layers: [
+    //default OSM layer
+    new ol.layer.Tile({
+      source: new ol.source.OSM()
+    }),
+        featuresLayer
+      ],
+      view: new ol.View({
+        center: [-11718716.28195593, 4869217.172379018], //Boulder, CO
+        zoom: 13,
+      })
+    });
+
+    // save map and layer references to local state
+    this.setState({ 
+      map: map,
+      featuresLayer: featuresLayer
+    });
+
+  }
+  render(){
+    return(
+      <div>
+      <div id="map"></div>
+      <Frontend/>
+      </div>
+    )
+  }
+  //other functions eliminated for brevity
+
+}
+
+export default Map;

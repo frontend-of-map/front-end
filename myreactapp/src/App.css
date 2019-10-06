@@ -30,7 +30,18 @@ li{
 #choices{
   background-color: white;
   width:250px;
+  position:relative;
+}
+#animals{
+  background-color: white;
+  width:250px;
+}
+#vmaps{
+  background-color: white;
+  width:250px;
 }
 .title{
   background-color: lightgrey;
 }
+#map{position:absolute;margin-top:0px;left:0;
+height: 100%;width:100%;overflow: hidden;}
