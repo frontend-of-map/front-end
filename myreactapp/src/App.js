@@ -141,7 +141,7 @@ class Frontend extends React.Component{
   }
 }
 
-/*
+
 class App extends Component{
   componentDidMount(){
     console.log(window)
@@ -157,14 +157,15 @@ class App extends Component{
   }
   render(){
     return (
-          <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> 
-          
+        <div>
+          <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
+          <Frontend/>
           </div>
     )
   }
 }
 export default App;
-*/
+/*
 class Map extends React.Component {
   
   //other functions eliminated for brevity
@@ -199,61 +200,6 @@ class Map extends React.Component {
       map: map,
       featuresLayer: featuresLayer
     });
-
-  
-  var styles=new ol.style.Style({
-    fill: new ol.style.Fill({
-        color: 'green'
-    }),
-    stroke: new ol.style.Stroke({
-        color: 'red',
-        width: 2
-    }),
-    image: new ol.style.Circle({
-        radius: 7,
-        fill: new ol.style.Fill({
-            color: 'red'
-        })
-    })
-});
-var geojsonObject = {
-  'type': 'FeatureCollection',
-  'crs': {
-   'type': 'name',
-   'properties': {
-    'name': 'EPSG:3857'
-   }
-  },
-  'features': []
- };
-var polygon = (new ol.geom.Polygon([[[120.97, 23.1],[115.97, 15.1],[118.97, 13.1],[120.97, 20.1],[120.97, 23.1]]])).transform('EPSG:4326', map.getView().getProjection());
-console.log(map.getView().getProjection());
-var proper={"type":"火点"}
-var geoMarker = new ol.Feature({
-
-    geometry: polygon//(new ol.geom.Point([120.97, 23.1])).transform('EPSG:4326', map.getView().getProjection())
-
-});
-
-geoMarker.setProperties(proper,true)
-geojsonObject.features = [];
-    geojsonObject.features.push({
-     'type': 'Feature',
-     'geometry': {
-      'type': 'Point',
-      'coordinates': [121.70817285,39.09255465]
-     }
-    });
-var source=new ol.source.Vector({
-    features: (new ol.format.GeoJSON({featureProjection: 'EPSG:3857'})).readFeatures(geojsonObject)
-});
-
-var vectorLayer = new ol.layer.Vector({
-    source: source,
-    style:styles,
-    opacity:0.5//styles['route']
-});
-map.addLayer(vectorLayer);}
   render(){
     return(
       <div>
@@ -266,4 +212,4 @@ map.addLayer(vectorLayer);}
 
 }
 
-export default Map;
+export default Map;*/
