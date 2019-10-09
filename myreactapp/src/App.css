@@ -37,12 +37,17 @@ li{
   background-color: white;
   width:250px;
 }
+#suggestId{width:150px;}
+#searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{
   background-color: white;
   width:250px;
 }
 .title{
   background-color: lightgrey;
+}
+.label{
+  width: 30%;
 }
 #map{position:absolute;margin-top:0px;left:0;
 height: 100%;width:100%;overflow: hidden;}

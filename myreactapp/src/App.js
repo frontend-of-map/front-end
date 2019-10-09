@@ -4,6 +4,9 @@ import { Slider, Handles, Tracks } from 'react-compound-slider'
 import React, {Component} from 'react';
 import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
+import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
+import $ from 'jquery';
+
 //open layers and styles
 var ol = require('openlayers');
 require('openlayers/css/ol.css');
@@ -83,10 +86,14 @@ class Sliders extends React.Component{
   
 }}
 class Variousmaps extends React.Component{
+  constructor(props){
+    super(props);
+  }
+
   render(){
     return(
       <div id="vmaps">
-      <input type="checkbox" name="creature" value="light"/>光环境地图
+      <input id="light" type="checkbox" name="creature" value="light"/>光环境地图
       <Sliders/>
       <input type="checkbox" name="creature" value="thermo"/>热环境地图
       <Sliders/>
@@ -107,7 +114,7 @@ class Animals extends React.Component{
       <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>其他<input 
-        className="yuzhi" value="100"/>阈值<br/>
+        className="yuzhi" id="others" value="100"/>阈值<br/>
     </div>)
   }
 }
@@ -136,6 +143,31 @@ class Frontend extends React.Component{
       {
         this.state.secondVisible?<Animals/>:null
       }
+      <tbody width="100%">
+          <tr>
+              <td className="label">经度</td>
+              <td><input type="text" name="lng" id="lng" value="" />
+              </td>
+          </tr>
+          <tr>
+              <td className="label">纬度</td>
+              <td><input type="text" name="lat" id="lat" value="" />
+              </td>
+          </tr>
+          <tr>
+              <td className="label">地址</td>
+              <td>
+                  <input type='text' value='' name='sever_add' id='sever_add'/>
+                  <input type='button' value='点击显示地图获取地址经纬度' id='open'/>
+              </td>
+          </tr>
+      </tbody>
+      <div id="result">
+    <input type="button" onclick="add_control();" value="添加" />
+    <input type="button" onclick="delete_control();" value="删除" />
+  </div>
+  <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
+  <div id="searchResultPanel" ></div>
       </div>
     )
   }
@@ -143,73 +175,252 @@ class Frontend extends React.Component{
 
 
 class App extends Component{
+  constructor(props){
+    super(props);
+    this.state={
+      lng:'',
+      lat:'',
+      server_add:'',
+      res:{}
+    }
+    this.loadUsers=this.loadUsers.bind(this);
+  }
+  loadUsers() {
+    $.ajax({
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=78531&outputFormat=application%2Fjson",
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+          
+         // this.render();
+         this.setState({
+          res:data
+         });
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+    });
+  }
   componentDidMount(){
     console.log(window)
-    const {BMap,BAMP_STATUS_SUCCESS} = window
-    var map = new BMap.Map("allmap");
-    map.centerAndZoom(new BMap.Point(116.404, 39.915),11);
-
+    const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
+    var map = new BMap.Map("allmap",{projection:"EPSG:3857"});
+    map.centerAndZoom("厦门",11);
+/*
     var p1 = new BMap.Point(116.301934,39.977552);
     var p2 = new BMap.Point(116.508328,39.919141);
 
     var driving = new BMap.DrivingRoute(map,{renderOptions:{map:map,autoViewport: true}});
-    driving.search(p1,p2);
+    driving.search(p1,p2);*/
+    var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+  var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+   map.addEventListener("click", showInfo); 
+  map.addControl(top_left_control);        
+  map.addControl(top_left_navigation);     
+  
+  // 定义一个控件类,即function
+  function ZoomControl(){
+    // 默认停靠位置和偏移量
+    this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
+    this.defaultOffset = new BMap.Size(100, 100);
   }
+  // 通过JavaScript的prototype属性继承于BMap.Control
+  ZoomControl.prototype = new BMap.Control();
+  
+  // 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
+  // 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
+  ZoomControl.prototype.initialize = function(map){
+    // 创建一个DOM元素
+    var div = document.createElement("div");
+  
+    // 添加文字说明
+    div.appendChild(document.createTextNode("量尺"));
+    // 设置样式
+    div.style.cursor = "pointer";
+    div.style.border = "1px solid gray";
+    div.style.backgroundColor = "white";
+    
+    // 绑定事件,点击一次打开量尺
+    div.onclick = function(e){
+      var myDis = new BMapLib.DistanceTool(map);
+      
+      myDis.open();  //开启鼠标测距
+      //myDis.close();  //关闭鼠标测距
+    
+    }
+    
+    // 添加DOM元素到地图中
+    map.getContainer().appendChild(div);
+    // 将DOM元素返回
+    return div;
+  }
+  // 创建控件
+  var myZoomCtrl = new ZoomControl();
+  map.addControl(myZoomCtrl);
+  function validate() {
+        var sever_add = document.getElementsByName('sever_add')[0].value;
+        if (isNull(sever_add)) {
+            alert('请选择地址');
+            return false;
+        }
+        return true;
+    }
+    //判断是否是空  
+    function isNull(a) {
+        return (a == '' || typeof(a) == 'undefined' || a == null) ? true : false;
+    }
+    document.getElementById('open').onclick = function() {
+        if (document.getElementById('allmap').style.display == 'none') {
+            document.getElementById('allmap').style.display = 'block';
+        } else {
+            document.getElementById('allmap').style.display = 'none';
+        }
+    }
+    var geoc = new BMap.Geocoder(); //地址解析对象  
+    var markersArray = [];
+    var geolocation = new BMap.Geolocation();
+    //map.addEventListener("click", showInfo);
+
+
+    //清除标识  
+    function clearOverlays() {
+        if (markersArray) {
+            for (var i in markersArray) {
+                map.removeOverlay(markersArray[i])
+            }
+        }
+    }
+    //地图上标注  
+    function addMarker(point) {
+        var marker = new BMap.Marker(point);
+        markersArray.push(marker);
+        clearOverlays();
+        map.addOverlay(marker);
+    }
+    //点击地图时间处理  
+    function showInfo(e) {
+       // this.setState({lng:e.point.lng});
+       document.getElementById('lng').value = e.point.lng;
+        document.getElementById('lat').value = e.point.lat;
+        geoc.getLocation(e.point, function(rs) {
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            document.getElementById('sever_add').value = address;
+        });
+        addMarker(e.point);
+    }
+  map.enableScrollWheelZoom(true);
+  map.disableDragging();     //禁止拖拽
+  setTimeout(function(){
+     map.enableDragging();   //两秒后开启拖拽
+     //map.enableInertialDragging();   //两秒后开启惯性拖拽
+  }, 2000);
+  var tileLayer = new BMap.TileLayer({isTransparentPng: true});
+  tileLayer.getTilesUrl = function(tileCoord, zoom) {
+    var x = tileCoord.x;
+    var y = tileCoord.y;
+    return "/jsdemo/img/border.png";
+  }
+  function add_control(){
+    map.addTileLayer(tileLayer);
+  }
+  function delete_control(){
+    map.removeTileLayer(tileLayer);
+  }
+  add_control();
+  function G(id) { return document.getElementById(id); }
+                    var ac = new BMap.Autocomplete( //建立一个自动完成的对象
+                        { "input": "suggestId", "location": map }); ac.addEventListener("onhighlight", function (e) { //鼠标放在下拉列表上的事件 
+                            var str = ""; var _value = e.fromitem.value; var value = "";
+                            if (e.fromitem.index > -1) { value = _value.province + _value.city + _value.district + _value.street + _value.business; } str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value; value = ""; if (e.toitem.index > -1) { _value = e.toitem.value; value = _value.province + _value.city + _value.district + _value.street + _value.business; } str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value; G("searchResultPanel").innerHTML = str;
+                        }); var myValue; ac.addEventListener("onconfirm", function (e) { //鼠标点击下拉列表后的事件 
+                            var _value = e.item.value; myValue = _value.province + _value.city + _value.district + _value.street + _value.business; G("searchResultPanel").innerHTML = "onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue; setPlace();
+                        });
+                    function setPlace() {
+                        map.clearOverlays(); //清除地图上所有覆盖物
+                        function myFun() {
+                            var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
+                            map.centerAndZoom(pp, 18); map.addOverlay(new BMap.Marker(pp)); //添加标注
+                        } var local = new BMap.LocalSearch(map, { //智能搜索
+                            onSearchComplete: myFun
+                        }); local.search(myValue);
+                    }
+                /*    document.getElementById('light').onclick=function() {
+    $.ajax({
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=50&outputFormat=application%2Fjson",
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+          
+         // this.render();
+        /*var polyline = new BMap.Polygon([],
+
+{strokeColor:"orange",
+    strokeWeight:2,
+    strokeOpacity:0.5,
+    fillOpacity:0.1,
+    strokeStyle:"solid",
+    fillColor:"red"}
+
+);
+        var data={"type":"FeatureCollection","features":[{"type":"Feature","id":"dlypoint.1","geometry":{"type":"Point","coordinates":[121.70817285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":1,"GRID_CODE":1.41738498,"POINT_X":121.708172848,"POINT_Y":39.0925546459}},
+         {"type":"Feature","id":"dlypoint.2","geometry":{"type":"Point","coordinates":[121.70935285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":2,"GRID_CODE":1.54692125,"POINT_X":121.709352848,"POINT_Y":39.0925546459}},
+         {"type":"Feature","id":"dlypoint.3","geometry":{"type":"Point","coordinates":[121.71053285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":3,"GRID_CODE":1.637833,"POINT_X":121.710532848,"POINT_Y":39.0925546459}},
+         {"type":"Feature","id":"dlypoint.4","geometry":{"type":"Point","coordinates":[124.888888,37.09255465]},"geometry_name":"the_geom","properties":{"POINTID":4,"GRID_CODE":1.79161346,"POINT_X":121.711712848,"POINT_Y":39.0925546459}}]};
+var points=[new BMap.Point(121.70817285,39.09255465)];
+for(var i=0;i<data.features.length;i++)
+{
+
+  /*var earthRad = 6378137.0;
+  var point_x=data.features[i].geometry.coordinates[0]*Math.PI/180*earthRad;
+  var a = data.features[i].geometry.coordinates[1] * Math.PI / 180;
+  var point_y=earthRad/2*Math.log((1.0+Math.sin(a))/(1.0-Math.sin(a)));
+  alert(point_x+","+point_y);
+  
+    //points.push(new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]));
+   var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
+    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
+        label.setStyle({
+            color : "#FFFF00",
+            fontSize : "1px",
+            backgroundColor :"#FFFF00",
+            border :"0px solid #FFF68F",
+            padding:"1px",
+            borderRadius:"100%",
+            fontWeight :"bold"
+        });
+    //map.addOverlay(label);
+  //  polyline.setPath(points);
+    map.addOverlay(label);
+}
+// points.push(new BMap.Point(data.features[0].geometry.coordinates[0],data.features[0].geometry.coordinates[1]))
+ // polyline.setPath(points);
+  alert(points);
+  //map.addOverlay(); 
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+    });
+  };*/
+      
+  };
+  
   render(){
+    const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
+    var map = new BMap.Map("allmap");
+
     return (
         <div>
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-          <Frontend/>
+      
+  <Frontend/>
           </div>
     )
   }
 }
 export default App;
-/*
-class Map extends React.Component {
-  
-  //other functions eliminated for brevity
 
-  componentDidMount() {
-
-    // create feature layer and vector source
-    var featuresLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({
-        features:[],
-      })
-    });
-
-    // create map object with feature layer
-    var map = new ol.Map({
-      target: 'map',
-      layers: [
-    //default OSM layer
-    new ol.layer.Tile({
-      source: new ol.source.OSM()
-    }),
-        featuresLayer
-      ],
-      view: new ol.View({
-        center: [-11718716.28195593, 4869217.172379018], //Boulder, CO
-        zoom: 13,
-      })
-    });
-
-    // save map and layer references to local state
-    this.setState({ 
-      map: map,
-      featuresLayer: featuresLayer
-    });
-  render(){
-    return(
-      <div>
-      <div id="map"></div>
-      <Frontend/>
-      </div>
-    )
-  }
-  //other functions eliminated for brevity
-
-}
-
-export default Map;*/

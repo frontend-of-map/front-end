@@ -8,6 +8,7 @@
     "ol": "^6.0.0",
     "openlayers": "^4.6.5",
     "react": "^16.9.0",
+    "react-bmap": "^1.0.103",
     "react-compound-slider": "^2.3.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.2"
