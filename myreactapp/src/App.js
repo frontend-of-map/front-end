@@ -398,7 +398,7 @@ for(var i=0;i<data.features.length;i++)
     });}
     if(t_click)
     {$.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=10000&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=5000&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
         dataType: 'json',
         cache: false,
         success: function(data) {
@@ -418,8 +418,8 @@ for(var i=0;i<data.features.length;i++)
             fontWeight :"bold"
         });
     map.addOverlay(label);
+    map.centerAndZoom("大连",7);
 }
-  alert(points);
         }.bind(this),
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.status);
