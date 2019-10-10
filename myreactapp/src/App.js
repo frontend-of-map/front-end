@@ -211,7 +211,7 @@ class App extends Component{
     console.log(window)
     const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
     var map = new BMap.Map("allmap",{projection:"EPSG:3857"});
-    map.centerAndZoom("厦门",3);
+    map.centerAndZoom("厦门",7);
   var e_click=false;
     var c_click=false;
     var t_click=false;
