@@ -37,6 +37,9 @@ li{
   background-color: white;
   width:250px;
 }
+.yuzhi{
+  width: 70px;
+}
 #suggestId{width:150px;}
 #searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{

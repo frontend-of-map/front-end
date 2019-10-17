@@ -95,9 +95,9 @@ class Variousmaps extends React.Component{
       <div id="vmaps">
       <input id="light" type="checkbox" name="creature" value="light"/>光环境地图
       <Sliders/>
-      <input type="checkbox" name="creature" value="thermo"/>热环境地图
+      <input id="thermo" type="checkbox" name="creature" value="thermo"/>热环境地图
       <Sliders/>
-      <input type="checkbox" name="creature" value="sound"/>声环境地图
+      <input id="sound" type="checkbox" name="creature" value="sound"/>声环境地图
       <Sliders/>
       </div>
     );
@@ -107,8 +107,8 @@ class Animals extends React.Component{
   render(){
     return(
     <div id="animals">
-    <input type="checkbox" className="creature" value="bailu"/>白鹭<input 
-        className="yuzhi" value="100"/>阈值<br/>
+    <input id="bailu" type="checkbox" className="creature" value="bailu"/>白鹭<input 
+        className="yuzhi" value="2"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>燕雀<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
@@ -181,13 +181,17 @@ class App extends Component{
       lng:'',
       lat:'',
       server_add:'',
-      res:{}
+      res:{},
+      e_click:false,
+      c_click:false,
+      s_click:false,
+      t_click:false
     }
     this.loadUsers=this.loadUsers.bind(this);
   }
   loadUsers() {
     $.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=78531&outputFormat=application%2Fjson",
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=78531&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
         dataType: 'json',
         cache: false,
         success: function(data) {
@@ -207,11 +211,13 @@ class App extends Component{
     console.log(window)
     const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
     var map = new BMap.Map("allmap",{projection:"EPSG:3857"});
-    map.centerAndZoom("厦门",11);
-/*
-    var p1 = new BMap.Point(116.301934,39.977552);
+    map.centerAndZoom("厦门",7);
+  var e_click=false;
+    var c_click=false;
+    var t_click=false;
+    var s_click=false;
+  /*var p1 = new BMap.Point(116.301934,39.977552);
     var p2 = new BMap.Point(116.508328,39.919141);
-
     var driving = new BMap.DrivingRoute(map,{renderOptions:{map:map,autoViewport: true}});
     driving.search(p1,p2);*/
     var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
@@ -317,17 +323,17 @@ class App extends Component{
      map.enableDragging();   //两秒后开启拖拽
      //map.enableInertialDragging();   //两秒后开启惯性拖拽
   }, 2000);
-  var tileLayer = new BMap.TileLayer({isTransparentPng: true});
-  tileLayer.getTilesUrl = function(tileCoord, zoom) {
-    var x = tileCoord.x;
-    var y = tileCoord.y;
-    return "/jsdemo/img/border.png";
-  }
+  //var tileLayer = new BMap.TileLayer({isTransparentPng: true});
+  //tileLayer.getTilesUrl = function(tileCoord, zoom) {
+    //var x = tileCoord.x;
+   // var y = tileCoord.y;
+   // return "/jsdemo/img/border.png";
+  //}
   function add_control(){
-    map.addTileLayer(tileLayer);
+    //map.addTileLayer(tileLayer);
   }
   function delete_control(){
-    map.removeTileLayer(tileLayer);
+    //map.removeTileLayer(tileLayer);
   }
   add_control();
   function G(id) { return document.getElementById(id); }
@@ -347,65 +353,109 @@ class App extends Component{
                             onSearchComplete: myFun
                         }); local.search(myValue);
                     }
-                /*    document.getElementById('light').onclick=function() {
-    $.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=50&outputFormat=application%2Fjson",
+                    document.getElementById('light').onclick=function(){
+                     // this.setState({e_click:!this.state.e_click});
+                     e_click=!e_click;
+                    }
+                    document.getElementById('thermo').onclick=function(){
+                     // this.setState({e_click:!this.state.e_click});
+                     t_click=!t_click;
+                    }
+                    document.getElementById('sound').onclick=function(){
+                     // this.setState({e_click:!this.state.e_click});
+                     //alert(s_click);
+                     s_click=!s_click;
+                    }
+                   document.getElementById('bailu').onclick=function() {
+                if(e_click)
+    {$.ajax({
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Aguang&maxFeatures=50&outputFormat=application%2Fjson",
         dataType: 'json',
         cache: false,
         success: function(data) {
-          
-         // this.render();
-        /*var polyline = new BMap.Polygon([],
-
-{strokeColor:"orange",
-    strokeWeight:2,
-    strokeOpacity:0.5,
-    fillOpacity:0.1,
-    strokeStyle:"solid",
-    fillColor:"red"}
-
-);
-        var data={"type":"FeatureCollection","features":[{"type":"Feature","id":"dlypoint.1","geometry":{"type":"Point","coordinates":[121.70817285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":1,"GRID_CODE":1.41738498,"POINT_X":121.708172848,"POINT_Y":39.0925546459}},
-         {"type":"Feature","id":"dlypoint.2","geometry":{"type":"Point","coordinates":[121.70935285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":2,"GRID_CODE":1.54692125,"POINT_X":121.709352848,"POINT_Y":39.0925546459}},
-         {"type":"Feature","id":"dlypoint.3","geometry":{"type":"Point","coordinates":[121.71053285,39.09255465]},"geometry_name":"the_geom","properties":{"POINTID":3,"GRID_CODE":1.637833,"POINT_X":121.710532848,"POINT_Y":39.0925546459}},
-         {"type":"Feature","id":"dlypoint.4","geometry":{"type":"Point","coordinates":[124.888888,37.09255465]},"geometry_name":"the_geom","properties":{"POINTID":4,"GRID_CODE":1.79161346,"POINT_X":121.711712848,"POINT_Y":39.0925546459}}]};
+      
 var points=[new BMap.Point(121.70817285,39.09255465)];
 for(var i=0;i<data.features.length;i++)
 {
-
-  /*var earthRad = 6378137.0;
-  var point_x=data.features[i].geometry.coordinates[0]*Math.PI/180*earthRad;
-  var a = data.features[i].geometry.coordinates[1] * Math.PI / 180;
-  var point_y=earthRad/2*Math.log((1.0+Math.sin(a))/(1.0-Math.sin(a)));
-  alert(point_x+","+point_y);
-  
-    //points.push(new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]));
-   var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
+ var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
     var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
         label.setStyle({
-            color : "#FFFF00",
-            fontSize : "1px",
-            backgroundColor :"#FFFF00",
-            border :"0px solid #FFF68F",
-            padding:"1px",
+            color : "#FF6347",
+            fontSize : "0.5px",
+            backgroundColor :"#FF6347",
+            border :"0px solid #FF6347",
+            padding:"0.5px",
             borderRadius:"100%",
             fontWeight :"bold"
         });
-    //map.addOverlay(label);
-  //  polyline.setPath(points);
     map.addOverlay(label);
 }
-// points.push(new BMap.Point(data.features[0].geometry.coordinates[0],data.features[0].geometry.coordinates[1]))
- // polyline.setPath(points);
-  alert(points);
-  //map.addOverlay(); 
         }.bind(this),
         error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.status);
             alert(thrownError);
         }.bind(this)
-    });
-  };*/
+    });}
+    if(t_click)
+    {$.ajax({
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=5000&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+      
+var points=[new BMap.Point(121.70817285,39.09255465)];
+for(var i=0;i<data.features.length;i++)
+{
+ var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
+    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
+        label.setStyle({
+            color : "#FF6347",
+            fontSize : "0.5px",
+            backgroundColor :"#FF6347",
+            border :"0px solid #FF6347",
+            padding:"0.5px",
+            borderRadius:"100%",
+            fontWeight :"bold"
+        });
+    map.addOverlay(label);
+    map.centerAndZoom("大连",7);
+}
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+    });}
+  if(s_click)
+    {$.ajax({
+        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Asheng&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
+        dataType: 'json',
+        cache: false,
+        success: function(data) {
+      
+var points=[new BMap.Point(121.70817285,39.09255465)];
+for(var i=0;i<data.features.length;i++)
+{
+ var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
+    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
+        label.setStyle({
+            color : "#FF6347",
+            fontSize : "0.5px",
+            backgroundColor :"#FF6347",
+            border :"0px solid #FF6347",
+            padding:"0.5px",
+            borderRadius:"100%",
+            fontWeight :"bold"
+        });
+    map.addOverlay(label);
+}
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+    });}
+  };
       
   };
   
