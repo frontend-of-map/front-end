@@ -122,7 +122,7 @@ class Animals extends React.Component{
       <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
         className="yuzhi" value="100"/>阈值<br/>
       <input id="qita" type="checkbox" className="creature" value="bailu"/>其他
-      <select id="box" value=""></select>阈值<br/>
+      <select id="box"></select>阈值<br/>
     </div>)
   }
 }
@@ -228,15 +228,11 @@ class App extends Component{
    // document.getElementById('light').onclick=this.changestate;
     document.getElementById('qita').onclick=function() {
       if(e_click)
-      {document.getElementById('box').innerHTML=
-                                "<option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>";
-    document.getElementById('box').onchange=function(){
-      var tuceng='hu:huguang';
-      tuceng=tuceng+document.getElementById('box').value
-      var wmsSource = new ol.source.TileWMS({
+      {
+        var wmsSource = new ol.source.TileWMS({
     url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
     params:{
-        'LAYERS':'hu:huguang100.8',//要加载的图层，可以为多个
+        'LAYERS':'hu:huguang',//要加载的图层，可以为多个
         'TILED':false,
     },
     serverType:'geoserver',//服务器类型
@@ -245,20 +241,36 @@ class App extends Component{
         var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+        map.addLayer(layer1);
+    document.getElementById('box').innerHTML=
+                                "<option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>";
+    document.getElementById('box').onchange=function(){
+      map.removeLayer(layer1);
+      var tuceng='hu:huguang';
+      tuceng=tuceng+document.getElementById('box').value
+      var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':tuceng,//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer = new ol.layer.Tile({
+                 source:wmsSource
+           });
+
        /* document.getElementById('ok').oninput=function() {
     var value = document.getElementById("ok").value;
     layer1.setOpacity(value);
  }*/
-         map.addLayer(layer1);
+         map.addLayer(layer);
+         layer1=layer;
        }}
      if(s_click)
      {
-      document.getElementById('box').innerHTML=
-                                "<option value='70'>70</option><option value='66'>66</option><option value='62'>62</option><option value='60'>60</option>";
-    document.getElementById('box').onchange=function(){
-      var tuceng='hu:huguang';
-      tuceng=tuceng+document.getElementById('box').value
-      var wmsSource = new ol.source.TileWMS({
+       var wmsSource = new ol.source.TileWMS({
     url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
     params:{
         'LAYERS':'hu:sheng',//要加载的图层，可以为多个
@@ -267,14 +279,34 @@ class App extends Component{
     serverType:'geoserver',//服务器类型
   
 })
-        var layer1 = new ol.layer.Tile({
+        var layer3 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+        map.addLayer(layer3);
+      document.getElementById('box').innerHTML=
+                                "<option value='70'>70</option><option value='66'>66</option><option value='62'>62</option><option value='60'>60</option>";
+    document.getElementById('box').onchange=function(){
+      map.removeLayer(layer3);
+      var tuceng='hu:sheng';
+      tuceng=tuceng+document.getElementById('box').value
+      var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':tuceng,//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer4 = new ol.layer.Tile({
                  source:wmsSource
            });
        /* document.getElementById('ok').oninput=function() {
     var value = document.getElementById("ok").value;
     layer1.setOpacity(value);
  }*/
-         map.addLayer(layer1);
+         map.addLayer(layer4);
+         layer3=layer4;
        }
      }
     }     
