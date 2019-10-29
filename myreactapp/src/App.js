@@ -6,7 +6,8 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
 import $ from 'jquery';
-
+import {Modal, Button} from 'antd';
+import 'antd/es/date-picker/style/css';
 //open layers and styles
 var ol = require('openlayers');
 require('openlayers/css/ol.css');
@@ -88,6 +89,62 @@ class Sliders extends React.Component{
 </div>)
   
 }}
+class Upload extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+    loading: false,
+    visible: false
+    };
+  }
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  handleOk = () => {
+    this.setState({ loading: true });
+    setTimeout(() => {
+      this.setState({ loading: false, visible: false });
+    }, 3000);
+  };
+
+  handleCancel = () => {
+    this.setState({ visible: false });
+  };
+
+  render() {
+    const { visible, loading } = this.state;
+    return (
+      <div>
+        <Button type="primary" onClick={this.showModal}>
+          Open Modal with customized footer
+        </Button>
+        <Modal
+          visible={visible}
+          title="Title"
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          footer={[
+            <Button key="back" onClick={this.handleCancel}>
+              Return
+            </Button>,
+            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+              Submit
+            </Button>,
+          ]}
+        >
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+        </Modal>
+      </div>
+    );
+  }
+}
 class Variousmaps extends React.Component{
   constructor(props){
     super(props);
@@ -154,7 +211,9 @@ class Frontend extends React.Component{
       <div id="result">
     <input type="button" onclick="add_control();" value="添加" />
     <input type="button" onclick="delete_control();" value="删除" />
+    <div id="btn2"><button type="button">定位到北京</button></div>
   </div>
+  <Upload id='uploadfile'/>
   <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
   <div id="searchResultPanel" ></div>
 
@@ -209,6 +268,21 @@ class App extends Component{
             ])
 
     });
+        const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
+    var baimap = new BMap.Map("l-map");  
+document.getElementById('btn2').onclick=function(){
+// 创建地址解析器实例     
+  var myGeo = new BMap.Geocoder();      
+  // 将地址解析结果显示在地图上，并调整地图视野    
+  myGeo.getPoint("北京市海淀区上地10街10号", function(point){ //这里换成用户的输入     
+    if (point) {  
+       map.getView().setCenter([point.lng,point.lat]);
+      map.getView().setZoom(11);
+    }      
+   }, 
+  "北京市");//规定用户一定要输入城市
+      
+};
     var e_click=false;
     var c_click=false;
     var t_click=false;
@@ -287,7 +361,7 @@ class App extends Component{
                                 "<option value='70'>70</option><option value='66'>66</option><option value='62'>62</option><option value='60'>60</option>";
     document.getElementById('box').onchange=function(){
       map.removeLayer(layer3);
-      var tuceng='hu:sheng';
+      var tuceng='hu: wsheng';
       tuceng=tuceng+document.getElementById('box').value
       var wmsSource = new ol.source.TileWMS({
     url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
