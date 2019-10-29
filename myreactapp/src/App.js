@@ -6,6 +6,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
 import $ from 'jquery';
+import { Modal, Button } from 'antd';
 
 //open layers and styles
 var ol = require('openlayers');
@@ -168,6 +169,7 @@ class Frontend extends React.Component{
   </div>
   <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
   <div id="searchResultPanel" ></div>
+  <upload id = "uploadfile"/>上传文件
       </div>
     )
   }
@@ -473,5 +475,63 @@ for(var i=0;i<data.features.length;i++)
     )
   }
 }
+
+
+class upload extends React.Component {
+  state = {
+    loading: false,
+    visible: false,
+  };
+
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  handleOk = () => {
+    this.setState({ loading: true });
+    setTimeout(() => {
+      this.setState({ loading: false, visible: false });
+    }, 3000);
+  };
+
+  handleCancel = () => {
+    this.setState({ visible: false });
+  };
+
+  render() {
+    const { visible, loading } = this.state;
+    return (
+      <div>
+        <Button type="primary" onClick={this.showModal}>
+          Open Modal with customized footer
+        </Button>
+        <Modal
+          visible={visible}
+          title="Title"
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          footer={[
+            <Button key="back" onClick={this.handleCancel}>
+              Return
+            </Button>,
+            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+              Submit
+            </Button>,
+          ]}
+        >
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+        </Modal>
+      </div>
+    );
+  }
+}
+
+
 export default App;
 
