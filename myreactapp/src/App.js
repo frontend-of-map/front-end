@@ -6,8 +6,9 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
 import $ from 'jquery';
-import { Modal, Button } from 'antd';
 
+import {Modal, Button} from 'antd';
+import 'antd/es/date-picker/style/css';
 //open layers and styles
 var ol = require('openlayers');
 require('openlayers/css/ol.css');
@@ -20,7 +21,8 @@ export function Handle({ // your handle component
       style={{
         left: `${percent}%`,
         position: 'absolute',
-        marginLeft: -15,
+        marginLeft: 0,
+        marginRight:5,
         marginTop: 15,
         zIndex: 2,
         width: 15,
@@ -66,7 +68,9 @@ class Sliders extends React.Component{
     <Slider
     rootStyle={sliderStyle} // inline styles for the outer div. Can also use className prop.
     domain={[0, 100]}
-    values={[10]}
+    values={[this.props.value]}
+    onUpdate={this.onUpdate}
+          onChange={this.onChange}
     >
     <div style={railStyle} />
       <Handles>
@@ -86,25 +90,86 @@ class Sliders extends React.Component{
 </div>)
   
 }}
+class Upload extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+    loading: false,
+    visible: false
+    };
+  }
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  handleOk = () => {
+    this.setState({ loading: true });
+    setTimeout(() => {
+      this.setState({ loading: false, visible: false });
+    }, 3000);
+  };
+
+  handleCancel = () => {
+    this.setState({ visible: false });
+  };
+
+  render() {
+    const { visible, loading } = this.state;
+    return (
+      <div>
+        <Button type="primary" onClick={this.showModal}>
+          Open Modal with customized footer
+        </Button>
+        <Modal
+          visible={visible}
+          title="Title"
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          footer={[
+            <Button key="back" onClick={this.handleCancel}>
+              Return
+            </Button>,
+            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+              Submit
+            </Button>,
+          ]}
+        >
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+          <p>Some contents...</p>
+        </Modal>
+      </div>
+    );
+  }
+}
 class Variousmaps extends React.Component{
   constructor(props){
     super(props);
+    this.state={value:10};
   }
 
   render(){
     return(
       <div id="vmaps">
       <input id="light" type="checkbox" name="creature" value="light"/>光环境地图
-      <Sliders/>
+      <Sliders value={this.state.value}/>
       <input id="thermo" type="checkbox" name="creature" value="thermo"/>热环境地图
-      <Sliders/>
+      <Sliders value={this.state.value}/>
       <input id="sound" type="checkbox" name="creature" value="sound"/>声环境地图
-      <Sliders/>
+      <Sliders value={this.state.value}/>
       </div>
     );
   }
 }
 class Animals extends React.Component{
+  constructor(props){
+    super(props);
+  }
+  
   render(){
     return(
     <div id="animals">
@@ -114,8 +179,8 @@ class Animals extends React.Component{
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
         className="yuzhi" value="100"/>阈值<br/>
-      <input type="checkbox" className="creature" value="bailu"/>其他<input 
-        className="yuzhi" id="others" value="100"/>阈值<br/>
+      <input id="qita" type="checkbox" className="creature" value="bailu"/>其他
+      <select id="box"></select>阈值<br/>
     </div>)
   }
 }
@@ -126,7 +191,6 @@ class Frontend extends React.Component{
     this.onfirstClick=this.onfirstClick.bind(this);
     this.onsecondClick=this.onsecondClick.bind(this);
   }
-
   onfirstClick(){
     this.setState({firstVisible: !this.state.firstVisible});
   }
@@ -142,34 +206,17 @@ class Frontend extends React.Component{
       }
       <div onClick={this.onsecondClick} className="title">物种</div>
       {
-        this.state.secondVisible?<Animals/>:null
+        this.state.secondVisible?<Animals kind={this.props.kind} handleChange={this.props.handleChange}/>:null
       }
-      <tbody width="100%">
-          <tr>
-              <td className="label">经度</td>
-              <td><input type="text" name="lng" id="lng" value="" />
-              </td>
-          </tr>
-          <tr>
-              <td className="label">纬度</td>
-              <td><input type="text" name="lat" id="lat" value="" />
-              </td>
-          </tr>
-          <tr>
-              <td className="label">地址</td>
-              <td>
-                  <input type='text' value='' name='sever_add' id='sever_add'/>
-                  <input type='button' value='点击显示地图获取地址经纬度' id='open'/>
-              </td>
-          </tr>
-      </tbody>
+      <div id="mouse-position"></div>
       <div id="result">
     <input type="button" onclick="add_control();" value="添加" />
     <input type="button" onclick="delete_control();" value="删除" />
+    <div id="btn2"><button type="button">定位到北京</button></div>
   </div>
+  <Upload id='uploadfile'/>
   <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
   <div id="searchResultPanel" ></div>
-  <upload id = "uploadfile"/>上传文件
       </div>
     )
   }
@@ -180,297 +227,173 @@ class App extends Component{
   constructor(props){
     super(props);
     this.state={
-      lng:'',
-      lat:'',
-      server_add:'',
-      res:{},
+      kind:'',
+      yuzhi:'',
       e_click:false,
       c_click:false,
       s_click:false,
       t_click:false
     }
-    this.loadUsers=this.loadUsers.bind(this);
+    this.changestate=this.changestate.bind(this);
+    this.handleChange=this.handleChange.bind(this);
   }
-  loadUsers() {
-    $.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=78531&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
-        dataType: 'json',
-        cache: false,
-        success: function(data) {
-          
-         // this.render();
-         this.setState({
-          res:data
-         });
-        }.bind(this),
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
-        }.bind(this)
-    });
+  changestate(){
+      this.setState({kind:'hu:huguang',e_click:true});
+  }
+  handleChange(e){
+      this.setState({yuzhi:e});
   }
   componentDidMount(){
-    console.log(window)
-    const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
-    var map = new BMap.Map("allmap",{projection:"EPSG:3857"});
-    map.centerAndZoom("厦门",7);
-  var e_click=false;
+    var map = new ol.Map({
+      layers: [new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })],
+      target: 'allmap',
+      view: new ol.View({
+        center: [118.06, 24.27],
+        maxZoom: 19,
+        zoom: 10,
+        projection: 'EPSG:4326'
+      }),
+      controls: ol.control.defaults().extend([
+                new ol.control.MousePosition({
+                  coordinateFormat: ol.coordinate.createStringXY(4),      // 将坐标保留4位小数位，并转换为字符串
+            projection: 'EPSG:4326',                                // 定义投影
+            className: 'custom-mouse-position',                     // 控件的CSS类名
+            target: document.getElementById('mouse-position'),      // 将控件渲染在该DOM元素中
+            undefinedHTML: '&nbsp;'                                 // 鼠标离开地图时，显示空格
+                }),      // 实例化坐标拾取控件，并加入地图
+            new ol.control.ScaleLine({}),
+            new ol.control.ZoomSlider({})
+            ])
+
+    });
+        const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
+    var baimap = new BMap.Map("l-map");  
+document.getElementById('btn2').onclick=function(){
+// 创建地址解析器实例     
+  var myGeo = new BMap.Geocoder();      
+  // 将地址解析结果显示在地图上，并调整地图视野    
+  myGeo.getPoint("北京市海淀区上地10街10号", function(point){ //这里换成用户的输入     
+    if (point) {  
+       map.getView().setCenter([point.lng,point.lat]);
+      map.getView().setZoom(11);
+    }      
+   }, 
+  "北京市");//规定用户一定要输入城市
+      
+};
+    var e_click=false;
     var c_click=false;
     var t_click=false;
     var s_click=false;
-  /*var p1 = new BMap.Point(116.301934,39.977552);
-    var p2 = new BMap.Point(116.508328,39.919141);
-    var driving = new BMap.DrivingRoute(map,{renderOptions:{map:map,autoViewport: true}});
-    driving.search(p1,p2);*/
-    var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
-  var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
-   map.addEventListener("click", showInfo); 
-  map.addControl(top_left_control);        
-  map.addControl(top_left_navigation);     
-  
-  // 定义一个控件类,即function
-  function ZoomControl(){
-    // 默认停靠位置和偏移量
-    this.defaultAnchor = BMAP_ANCHOR_TOP_LEFT;
-    this.defaultOffset = new BMap.Size(100, 100);
-  }
-  // 通过JavaScript的prototype属性继承于BMap.Control
-  ZoomControl.prototype = new BMap.Control();
-  
-  // 自定义控件必须实现自己的initialize方法,并且将控件的DOM元素返回
-  // 在本方法中创建个div元素作为控件的容器,并将其添加到地图容器中
-  ZoomControl.prototype.initialize = function(map){
-    // 创建一个DOM元素
-    var div = document.createElement("div");
-  
-    // 添加文字说明
-    div.appendChild(document.createTextNode("量尺"));
-    // 设置样式
-    div.style.cursor = "pointer";
-    div.style.border = "1px solid gray";
-    div.style.backgroundColor = "white";
-    
-    // 绑定事件,点击一次打开量尺
-    div.onclick = function(e){
-      var myDis = new BMapLib.DistanceTool(map);
-      
-      myDis.open();  //开启鼠标测距
-      //myDis.close();  //关闭鼠标测距
-    
-    }
-    
-    // 添加DOM元素到地图中
-    map.getContainer().appendChild(div);
-    // 将DOM元素返回
-    return div;
-  }
-  // 创建控件
-  var myZoomCtrl = new ZoomControl();
-  map.addControl(myZoomCtrl);
-  function validate() {
-        var sever_add = document.getElementsByName('sever_add')[0].value;
-        if (isNull(sever_add)) {
-            alert('请选择地址');
-            return false;
-        }
-        return true;
-    }
-    //判断是否是空  
-    function isNull(a) {
-        return (a == '' || typeof(a) == 'undefined' || a == null) ? true : false;
-    }
-    document.getElementById('open').onclick = function() {
-        if (document.getElementById('allmap').style.display == 'none') {
-            document.getElementById('allmap').style.display = 'block';
-        } else {
-            document.getElementById('allmap').style.display = 'none';
-        }
-    }
-    var geoc = new BMap.Geocoder(); //地址解析对象  
-    var markersArray = [];
-    var geolocation = new BMap.Geolocation();
-    //map.addEventListener("click", showInfo);
 
-
-    //清除标识  
-    function clearOverlays() {
-        if (markersArray) {
-            for (var i in markersArray) {
-                map.removeOverlay(markersArray[i])
-            }
-        }
-    }
-    //地图上标注  
-    function addMarker(point) {
-        var marker = new BMap.Marker(point);
-        markersArray.push(marker);
-        clearOverlays();
-        map.addOverlay(marker);
-    }
-    //点击地图时间处理  
-    function showInfo(e) {
-       // this.setState({lng:e.point.lng});
-       document.getElementById('lng').value = e.point.lng;
-        document.getElementById('lat').value = e.point.lat;
-        geoc.getLocation(e.point, function(rs) {
-            var addComp = rs.addressComponents;
-            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
-            document.getElementById('sever_add').value = address;
-        });
-        addMarker(e.point);
-    }
-  map.enableScrollWheelZoom(true);
-  map.disableDragging();     //禁止拖拽
-  setTimeout(function(){
-     map.enableDragging();   //两秒后开启拖拽
-     //map.enableInertialDragging();   //两秒后开启惯性拖拽
-  }, 2000);
-
-  //var tileLayer = new BMap.TileLayer({isTransparentPng: true});
-  //tileLayer.getTilesUrl = function(tileCoord, zoom) {
-    //var x = tileCoord.x;
-   // var y = tileCoord.y;
-   // return "/jsdemo/img/border.png";
-  //}
-  function add_control(){
-    //map.addTileLayer(tileLayer);
-  }
-  function delete_control(){
-    //map.removeTileLayer(tileLayer)
-  }
-  add_control();
-  function G(id) { return document.getElementById(id); }
-                    var ac = new BMap.Autocomplete( //建立一个自动完成的对象
-                        { "input": "suggestId", "location": map }); ac.addEventListener("onhighlight", function (e) { //鼠标放在下拉列表上的事件 
-                            var str = ""; var _value = e.fromitem.value; var value = "";
-                            if (e.fromitem.index > -1) { value = _value.province + _value.city + _value.district + _value.street + _value.business; } str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value; value = ""; if (e.toitem.index > -1) { _value = e.toitem.value; value = _value.province + _value.city + _value.district + _value.street + _value.business; } str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value; G("searchResultPanel").innerHTML = str;
-                        }); var myValue; ac.addEventListener("onconfirm", function (e) { //鼠标点击下拉列表后的事件 
-                            var _value = e.item.value; myValue = _value.province + _value.city + _value.district + _value.street + _value.business; G("searchResultPanel").innerHTML = "onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue; setPlace();
-                        });
-                    function setPlace() {
-                        map.clearOverlays(); //清除地图上所有覆盖物
-                        function myFun() {
-                            var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
-                            map.centerAndZoom(pp, 18); map.addOverlay(new BMap.Marker(pp)); //添加标注
-                        } var local = new BMap.LocalSearch(map, { //智能搜索
-                            onSearchComplete: myFun
-                        }); local.search(myValue);
-                    }
-                    document.getElementById('light').onclick=function(){
+    var kind=this.state.kind;
+    var yuzhi=this.state.yuzhi;
+    document.getElementById('light').onclick=function(){
                      // this.setState({e_click:!this.state.e_click});
                      e_click=!e_click;
+                     
                     }
-                    document.getElementById('thermo').onclick=function(){
+    document.getElementById('sound').onclick=function(){
                      // this.setState({e_click:!this.state.e_click});
-                     t_click=!t_click;
-                    }
-                    document.getElementById('sound').onclick=function(){
-                     // this.setState({e_click:!this.state.e_click});
-                     //alert(s_click);
                      s_click=!s_click;
+                     
                     }
-                   document.getElementById('bailu').onclick=function() {
-                if(e_click)
-    {$.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Aguang&maxFeatures=50&outputFormat=application%2Fjson",
-        dataType: 'json',
-        cache: false,
-        success: function(data) {
-      
-var points=[new BMap.Point(121.70817285,39.09255465)];
-for(var i=0;i<data.features.length;i++)
-{
- var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
-    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
-        label.setStyle({
-            color : "#FF6347",
-            fontSize : "0.5px",
-            backgroundColor :"#FF6347",
-            border :"0px solid #FF6347",
-            padding:"0.5px",
-            borderRadius:"100%",
-            fontWeight :"bold"
-        });
-    map.addOverlay(label);
-}
-        }.bind(this),
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
-        }.bind(this)
-    });}
-    if(t_click)
-    {$.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Adlypoint&maxFeatures=5000&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
-        dataType: 'json',
-        cache: false,
-        success: function(data) {
-      
-var points=[new BMap.Point(121.70817285,39.09255465)];
-for(var i=0;i<data.features.length;i++)
-{
- var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
-    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
-        label.setStyle({
-            color : "#FF6347",
-            fontSize : "0.5px",
-            backgroundColor :"#FF6347",
-            border :"0px solid #FF6347",
-            padding:"0.5px",
-            borderRadius:"100%",
-            fontWeight :"bold"
-        });
-    map.addOverlay(label);
-    map.centerAndZoom("大连",7);
-}
-        }.bind(this),
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
-        }.bind(this)
-    });}
-  if(s_click)
-    {$.ajax({
-        url: "http://118.31.56.186:8086/geoserver/pre_warn/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=pre_warn%3Asheng&maxFeatures=50&outputFormat=application%2Fjson&cql_filter=GRID_CODE>2",
-        dataType: 'json',
-        cache: false,
-        success: function(data) {
-      
-var points=[new BMap.Point(121.70817285,39.09255465)];
-for(var i=0;i<data.features.length;i++)
-{
- var point=new BMap.Point(data.features[i].geometry.coordinates[0],data.features[i].geometry.coordinates[1]);
-    var label=new BMap.Label(1,{offset:new BMap.Size(0,0), position:point});
-        label.setStyle({
-            color : "#FF6347",
-            fontSize : "0.5px",
-            backgroundColor :"#FF6347",
-            border :"0px solid #FF6347",
-            padding:"0.5px",
-            borderRadius:"100%",
-            fontWeight :"bold"
-        });
-    map.addOverlay(label);
-}
-        }.bind(this),
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
-        }.bind(this)
-    });}
-  };
-      
+   // document.getElementById('light').onclick=this.changestate;
+    document.getElementById('qita').onclick=function() {
+      if(e_click)
+      {
+        var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':'hu:huguang',//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+        map.addLayer(layer1);
+    document.getElementById('box').innerHTML=
+                                "<option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>";
+    document.getElementById('box').onchange=function(){
+      map.removeLayer(layer1);
+      var tuceng='hu:huguang';
+      tuceng=tuceng+document.getElementById('box').value
+      var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':tuceng,//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer = new ol.layer.Tile({
+                 source:wmsSource
+           });
+
+       /* document.getElementById('ok').oninput=function() {
+    var value = document.getElementById("ok").value;
+    layer1.setOpacity(value);
+ }*/
+         map.addLayer(layer);
+         layer1=layer;
+       }}
+     if(s_click)
+     {
+       var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':'hu:sheng',//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer3 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+        map.addLayer(layer3);
+      document.getElementById('box').innerHTML=
+                                "<option value='70'>70</option><option value='66'>66</option><option value='62'>62</option><option value='60'>60</option>";
+    document.getElementById('box').onchange=function(){
+      map.removeLayer(layer3);
+      var tuceng='hu: wsheng';
+      tuceng=tuceng+document.getElementById('box').value
+      var wmsSource = new ol.source.TileWMS({
+    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+    params:{
+        'LAYERS':tuceng,//要加载的图层，可以为多个
+        'TILED':false,
+    },
+    serverType:'geoserver',//服务器类型
+  
+})
+        var layer4 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+       /* document.getElementById('ok').oninput=function() {
+    var value = document.getElementById("ok").value;
+    layer1.setOpacity(value);
+ }*/
+         map.addLayer(layer4);
+         layer3=layer4;
+       }
+     }
+    }     
   };
   
   render(){
-    const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
-    var map = new BMap.Map("allmap");
 
     return (
         <div>
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
       
-  <Frontend/>
+  <Frontend kind={this.state.kind} handleChange={this.handleChange}/>
           </div>
     )
   }
