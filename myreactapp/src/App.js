@@ -323,19 +323,7 @@ class App extends Component{
      map.enableDragging();   //两秒后开启拖拽
      //map.enableInertialDragging();   //两秒后开启惯性拖拽
   }, 2000);
-<<<<<<< HEAD
-  // var tileLayer = new BMap.TileLayer({isTransparentPng: true});//baidu叠加图层接口，弃之
-  // tileLayer.getTilesUrl = function(tileCoord, zoom) {
-  //   var x = tileCoord.x;
-  //   var y = tileCoord.y;
-  //   return "/jsdemo/img/border.png";
-  // }
-  function add_control(){
-    // map.addTileLayer(tileLayer);
-  }
-  function delete_control(){
-    // map.removeTileLayer(tileLayer);
-=======
+
   //var tileLayer = new BMap.TileLayer({isTransparentPng: true});
   //tileLayer.getTilesUrl = function(tileCoord, zoom) {
     //var x = tileCoord.x;
@@ -346,8 +334,7 @@ class App extends Component{
     //map.addTileLayer(tileLayer);
   }
   function delete_control(){
-    //map.removeTileLayer(tileLayer);
->>>>>>> master
+    //map.removeTileLayer(tileLayer)
   }
   add_control();
   function G(id) { return document.getElementById(id); }
