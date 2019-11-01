@@ -1,94 +1,17 @@
 import logo from './logo.svg';
 import './App.css';
-import { Slider, Handles, Tracks } from 'react-compound-slider'
 import React, {Component} from 'react';
 import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
 import $ from 'jquery';
 import {Modal, Button} from 'antd';
+import InputRange from'react-input-range';
 import 'antd/es/date-picker/style/css';
-//open layers and styles
+import 'react-input-range/lib/css/index.css';
 var ol = require('openlayers');
 require('openlayers/css/ol.css');
-export function Handle({ // your handle component
-  handle: { id, value, percent }, 
-  getHandleProps
-}) {
-  return (
-    <div
-      style={{
-        left: `${percent}%`,
-        position: 'absolute',
-        marginLeft: 0,
-        marginRight:5,
-        marginTop: 15,
-        zIndex: 2,
-        width: 15,
-        height: 15,
-        border: 0,
-        textAlign: 'center',
-        cursor: 'pointer',
-        borderRadius: '50%',
-        backgroundColor: '#2C4870',
-        color: '#333',
-      }}
-      {...getHandleProps(id)}
-    >
-      <div style={{ fontFamily: 'Roboto', fontSize: 11, marginTop: -18 }}>
-        {value}
-      </div>
-    </div>
-  )
-}
-class Sliders extends React.Component{
-  constructor(props){
-    super(props);
-  }
-  render(){
-    const sliderStyle = {  // Give the slider some width
-  position: 'relative',
-  width: '80%',
-  height: 30,
-  backgroundColor:'#FFFFFF'
-  }
-  const railStyle = { 
-  position: 'absolute',
-  width: '100%',
-  height: 10,
-  marginTop: 17,
-  borderRadius: 5,
-  backgroundColor: '#8B9CB6',
-  display:'inline'
-}
-  return(
-    <div>
-    
-    <Slider
-    rootStyle={sliderStyle} // inline styles for the outer div. Can also use className prop.
-    domain={[0, 100]}
-    values={[this.props.value]}
-    onUpdate={this.onUpdate}
-          onChange={this.onChange}
-    >
-    <div style={railStyle} />
-      <Handles>
-      {({ handles, getHandleProps }) => (
-        <div className="slider-handles">
-          {handles.map(handle => (
-            <Handle
-              key={handle.id}
-              handle={handle}
-              getHandleProps={getHandleProps}
-            />
-          ))}
-        </div>
-      )}
-    </Handles>
-</Slider>
-</div>)
-  
-}}
+/*
 class Upload extends React.Component {
   constructor(props){
     super(props);
@@ -144,22 +67,59 @@ class Upload extends React.Component {
       </div>
     );
   }
-}
+}*/
 class Variousmaps extends React.Component{
   constructor(props){
     super(props);
-    this.state={value:10};
+    this.state={ haschosen:false, 
+                  lvalue:30, 
+                  svalue:30,
+                  tvalue:30,
+                  id:"" };
+    this.handleKChange=this.handleKChange.bind(this);
+    this.onOChange=this.onOChange.bind(this);
   }
-
+  onOChange(e){
+    this.props.onChange(e,this.state.id);
+  }
+  handleKChange(e){
+    this.setState({haschosen:!this.state.haschosen});
+    if(e.target.checked)
+    {
+       this.props.handleKChange(e.target.value);
+    }
+    else
+    {
+      this.props.cancelKChange(e.target.value);
+    }
+  }
   render(){
     return(
       <div id="vmaps">
-      <input id="light" type="checkbox" name="creature" value="light"/>光环境地图
-      <Sliders value={this.state.value}/>
-      <input id="thermo" type="checkbox" name="creature" value="thermo"/>热环境地图
-      <Sliders value={this.state.value}/>
-      <input id="sound" type="checkbox" name="creature" value="sound"/>声环境地图
-      <Sliders value={this.state.value}/>
+      <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>光环境地图
+      <InputRange
+        id="light"
+        maxValue={100}
+        minValue={0}
+        value={this.state.lvalue}
+        onChange={lvalue => this.setState({ lvalue,id:"light" })}
+        onChangeComplete={this.onChange} />      
+      <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
+      <InputRange
+        id="thermo"
+        maxValue={100}
+        minValue={0}
+        value={this.state.tvalue}
+        onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
+        onChangeComplete={this.onChange} /> 
+      <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
+      <InputRange
+        id="sound"
+        maxValue={100}
+        minValue={0}
+        value={this.state.svalue}
+        onChange={svalue => this.setState({ svalue,id:"sound" })}
+        onChangeComplete={this.onOChange} /> 
       </div>
     );
   }
@@ -167,8 +127,16 @@ class Variousmaps extends React.Component{
 class Animals extends React.Component{
   constructor(props){
     super(props);
+    this.handleWChange=this.handleWChange.bind(this);
+    this.handleYChange=this.handleYChange.bind(this);
   }
-  
+  handleWChange(e){
+    this.props.handleWChange(e.target.value);
+  }
+  handleYChange(e){
+    this.props.handleYChange(e.target.value);
+    
+  }
   render(){
     return(
     <div id="animals">
@@ -178,8 +146,9 @@ class Animals extends React.Component{
         className="yuzhi" value="100"/>阈值<br/>
       <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
         className="yuzhi" value="100"/>阈值<br/>
-      <input id="qita" type="checkbox" className="creature" value="bailu"/>其他
-      <select id="box"></select>阈值<br/>
+      <input id="qita" type="checkbox" className="creature" value="bailu" onClick={this.handleWChange}/>其他
+      <select id="box" onChange={this.handleYChange}>
+      </select>阈值<br/>
     </div>)
   }
 }
@@ -196,24 +165,31 @@ class Frontend extends React.Component{
   onsecondClick(){
     this.setState({secondVisible: !this.state.secondVisible});
   }
+  
   render(){
     return(
       <div id="choices">
       <div onClick={this.onfirstClick} className="title">物理环境地图</div>
       {
-        this.state.firstVisible?<Variousmaps/>:null
+        this.state.firstVisible?<Variousmaps value={this.props.value} onChange={this.props.onChange}
+                kind={this.props.kind}  cancelKChange={this.props.cancelKChange} handleKChange={this.props.handleKChange}/>:null
       }
       <div onClick={this.onsecondClick} className="title">物种</div>
       {
-        this.state.secondVisible?<Animals kind={this.props.kind} handleChange={this.props.handleChange}/>:null
+        this.state.secondVisible?<Animals  
+            kind={this.props.kind}
+            yuzhi={this.props.yuzhi}
+            wuzhong={this.props.wuzhong}
+            handleYChange={this.props.handleYChange}
+            handleWChange={this.props.handleWChange}/>:null
       }
       <div id="mouse-position"></div>
       <div id="result">
-    <input type="button" onclick="add_control();" value="添加" />
+    <input type="button" onClick={this.handleclick} value="添加" />
     <input type="button" onclick="delete_control();" value="删除" />
     <div id="btn2"><button type="button">定位到北京</button></div>
   </div>
-  <Upload id='uploadfile'/>
+  
   <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
   <div id="searchResultPanel" ></div>
 
@@ -228,27 +204,18 @@ class App extends Component{
     super(props);
     this.state={
       kind:'',
+      wuzhong:'',
       yuzhi:'',
-      e_click:false,
-      c_click:false,
-      s_click:false,
-      t_click:false
-    }
-    this.changestate=this.changestate.bind(this);
-    this.handleChange=this.handleChange.bind(this);
-  }
-  changestate(){
-      this.setState({kind:'hu:huguang',e_click:true});
-  }
-  handleChange(e){
-      this.setState({yuzhi:e});
-  }
-  componentDidMount(){
-    var map = new ol.Map({
+      value:10,
+      lightlayer:new ol.layer.Tile({}),
+      thermolayer:new ol.layer.Tile({}),
+      soundlayer:new ol.layer.Tile({})
+      }
+    this.map= new ol.Map({
       layers: [new ol.layer.Tile({
         source: new ol.source.OSM()
       })],
-      target: 'allmap',
+      //target: 'allmap',
       view: new ol.View({
         center: [118.06, 24.27],
         maxZoom: 19,
@@ -268,6 +235,120 @@ class App extends Component{
             ])
 
     });
+    this.handleKChange=this.handleKChange.bind(this);
+    this.handleWChange=this.handleWChange.bind(this);
+    this.handleYChange=this.handleYChange.bind(this);
+    this.cancelKChange=this.cancelKChange.bind(this);
+    this.onChange=this.onChange.bind(this);
+    this.handleAddLayer=this.handleAddLayer.bind(this);
+  }
+  onChange(e,kind){
+    this.setState({value:e});
+   //alert(e);
+   let value=1-e/100;
+   if(kind=="light")
+   { 
+      this.state.lightlayer.setOpacity(value);
+    }
+    if(kind=="sound")
+    {
+      this.state.soundlayer.setOpacity(value);
+    }
+  }
+  cancelKChange(e){
+    this.setState({kind:''});
+    if(e=='light')
+    {
+      this.map.removeLayer(this.state.lightlayer);
+    }
+    if(e=='thermo')
+    {
+      this.map.removeLayer(this.state.thermolayer);
+    }
+    if(e=='sound')
+    {
+      this.map.removeLayer(this.state.soundlayer);
+    }
+  }
+  handleKChange(e){
+    this.setState({kind:e});
+    if(this.state.wuzhong!='')
+    {
+      this.handleAddLayer(e,this.state.wuzhong,this.state.yuzhi);
+    }
+  }
+  handleAddLayer(kind,wuzhong,yuzhi)
+  {
+    if(kind=="light")
+    {
+      var tuceng='hu:huguang';
+      tuceng=tuceng+yuzhi
+      var wmsSource = new ol.source.TileWMS({
+          url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+            params:{
+              'LAYERS':tuceng,//要加载的图层，可以为多个
+               'TILED':false,
+            },
+            serverType:'geoserver',//服务器类型
+          })
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      this.setState({lightlayer:layer1});
+    }
+    if(kind=="sound")
+    {
+      var tuceng='hu:sheng';
+      tuceng=tuceng+yuzhi;  
+      var wmsSource = new ol.source.TileWMS({
+      url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+       params:{
+            'LAYERS':tuceng,//要加载的图层，可以为多个
+           'TILED':false,
+        },
+      serverType:'geoserver',//服务器类型
+      });
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      this.setState({soundlayer:layer1});
+    }
+    this.map.addLayer(layer1)
+  }
+  handleWChange(e){
+    if(this.state.kind)
+    {
+      this.setState({wuzhong:e});
+    }
+    if(this.state.kind=="light")
+    {
+      document.getElementById("box").innerHTML="<option value=''>0</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
+    }
+    if(this.state.kind=="sound")
+    {
+      document.getElementById("box").innerHTML="<option value=''>0</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
+    }
+    //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
+      this.handleAddLayer(this.state.kind,e,this.state.yuzhi)
+  }
+  handleYChange(e){
+    this.setState({yuzhi:e});
+    if(this.state.kind=="light")
+    {
+      this.map.removeLayer(this.state.lightlayer);
+    }
+    if(this.state.kind=="thermo")
+    {
+      this.map.removeLayer(this.state.thermolayer);
+    }
+    if(this.state.kind=="sound")
+    {
+      this.map.removeLayer(this.state.soundlayer);
+    }
+    this.handleAddLayer(this.state.kind,this.state.wuzhong,e)
+  }
+  componentDidMount(){
+    this.map.setTarget("allmap");
         const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
     var baimap = new BMap.Map("l-map");  
 document.getElementById('btn2').onclick=function(){
@@ -276,114 +357,13 @@ document.getElementById('btn2').onclick=function(){
   // 将地址解析结果显示在地图上，并调整地图视野    
   myGeo.getPoint("北京市海淀区上地10街10号", function(point){ //这里换成用户的输入     
     if (point) {  
-       map.getView().setCenter([point.lng,point.lat]);
-      map.getView().setZoom(11);
+       this.map.getView().setCenter([point.lng,point.lat]);
+      this.map.getView().setZoom(11);
     }      
    }, 
   "北京市");//规定用户一定要输入城市
       
 };
-    var e_click=false;
-    var c_click=false;
-    var t_click=false;
-    var s_click=false;
-    var kind=this.state.kind;
-    var yuzhi=this.state.yuzhi;
-    document.getElementById('light').onclick=function(){
-                     // this.setState({e_click:!this.state.e_click});
-                     e_click=!e_click;
-                     
-                    }
-    document.getElementById('sound').onclick=function(){
-                     // this.setState({e_click:!this.state.e_click});
-                     s_click=!s_click;
-                     
-                    }
-   // document.getElementById('light').onclick=this.changestate;
-    document.getElementById('qita').onclick=function() {
-      if(e_click)
-      {
-        var wmsSource = new ol.source.TileWMS({
-    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-    params:{
-        'LAYERS':'hu:huguang',//要加载的图层，可以为多个
-        'TILED':false,
-    },
-    serverType:'geoserver',//服务器类型
-  
-})
-        var layer1 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-        map.addLayer(layer1);
-    document.getElementById('box').innerHTML=
-                                "<option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>";
-    document.getElementById('box').onchange=function(){
-      map.removeLayer(layer1);
-      var tuceng='hu:huguang';
-      tuceng=tuceng+document.getElementById('box').value
-      var wmsSource = new ol.source.TileWMS({
-    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-    params:{
-        'LAYERS':tuceng,//要加载的图层，可以为多个
-        'TILED':false,
-    },
-    serverType:'geoserver',//服务器类型
-  
-})
-        var layer = new ol.layer.Tile({
-                 source:wmsSource
-           });
-
-       /* document.getElementById('ok').oninput=function() {
-    var value = document.getElementById("ok").value;
-    layer1.setOpacity(value);
- }*/
-         map.addLayer(layer);
-         layer1=layer;
-       }}
-     if(s_click)
-     {
-       var wmsSource = new ol.source.TileWMS({
-    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-    params:{
-        'LAYERS':'hu:sheng',//要加载的图层，可以为多个
-        'TILED':false,
-    },
-    serverType:'geoserver',//服务器类型
-  
-})
-        var layer3 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-        map.addLayer(layer3);
-      document.getElementById('box').innerHTML=
-                                "<option value='70'>70</option><option value='66'>66</option><option value='62'>62</option><option value='60'>60</option>";
-    document.getElementById('box').onchange=function(){
-      map.removeLayer(layer3);
-      var tuceng='hu: wsheng';
-      tuceng=tuceng+document.getElementById('box').value
-      var wmsSource = new ol.source.TileWMS({
-    url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-    params:{
-        'LAYERS':tuceng,//要加载的图层，可以为多个
-        'TILED':false,
-    },
-    serverType:'geoserver',//服务器类型
-  
-})
-        var layer4 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-       /* document.getElementById('ok').oninput=function() {
-    var value = document.getElementById("ok").value;
-    layer1.setOpacity(value);
- }*/
-         map.addLayer(layer4);
-         layer3=layer4;
-       }
-     }
-    }     
   };
   
   render(){
@@ -392,7 +372,17 @@ document.getElementById('btn2').onclick=function(){
         <div>
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
       
-  <Frontend kind={this.state.kind} handleChange={this.handleChange}/>
+  <Frontend 
+            kind={this.state.kind} 
+            yuzhi={this.state.yuzhi}
+            wuzhong={this.state.wuzhong}
+            value={this.state.value}
+            onChange={this.onChange}
+            cancelKChange={this.cancelKChange}
+            handleKChange={this.handleKChange}
+            handleYChange={this.handleYChange}
+            handleWChange={this.handleWChange}/>
+ 
           </div>
     )
   }
