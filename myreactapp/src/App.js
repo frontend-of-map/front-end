@@ -103,7 +103,7 @@ class Variousmaps extends React.Component{
         minValue={0}
         value={this.state.lvalue}
         onChange={lvalue => this.setState({ lvalue,id:"light" })}
-        onChangeComplete={this.onChange} />      
+        onChangeComplete={this.onOChange} />      
       <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <InputRange
         id="thermo"
@@ -111,7 +111,7 @@ class Variousmaps extends React.Component{
         minValue={0}
         value={this.state.tvalue}
         onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
-        onChangeComplete={this.onChange} /> 
+        onChangeComplete={this.onOChange} /> 
       <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <InputRange
         id="sound"
@@ -137,6 +137,7 @@ class Animals extends React.Component{
     this.props.handleYChange(e.target.value);
     
   }
+  
   render(){
     return(
     <div id="animals">
@@ -157,7 +158,12 @@ class Frontend extends React.Component{
     super(props);
     this.state={firstVisible:true,secondVisible:true};
     this.onfirstClick=this.onfirstClick.bind(this);
-    this.onsecondClick=this.onsecondClick.bind(this);
+    this.onsecondClick=this.onsecondClick.bind(this);    
+    this.oninputchange=this.oninputchange.bind(this);
+    this.handleLocate=this.handleLocate.bind(this);
+  }
+  handleLocate(e){
+    this.props.handleLocate(e);
   }
   onfirstClick(){
     this.setState({firstVisible: !this.state.firstVisible});
@@ -165,7 +171,9 @@ class Frontend extends React.Component{
   onsecondClick(){
     this.setState({secondVisible: !this.state.secondVisible});
   }
-  
+  oninputchange(e){
+    this.props.oninputchange(e.target.value);
+  }
   render(){
     return(
       <div id="choices">
@@ -183,14 +191,9 @@ class Frontend extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}/>:null
       }
-      <div id="mouse-position"></div>
-      <div id="result">
-    <input type="button" onClick={this.handleclick} value="添加" />
-    <input type="button" onclick="delete_control();" value="删除" />
-    <div id="btn2"><button type="button">定位到北京</button></div>
-  </div>
+      
   
-  <div id="r-result">区域搜索:<input type="text" id="suggestId" size="20" value="百度" /></div>
+  <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
   <div id="searchResultPanel" ></div>
 
       </div>
@@ -207,9 +210,12 @@ class App extends Component{
       wuzhong:'',
       yuzhi:'',
       value:10,
+      searchcity:'',
       lightlayer:new ol.layer.Tile({}),
       thermolayer:new ol.layer.Tile({}),
-      soundlayer:new ol.layer.Tile({})
+      soundlayer:new ol.layer.Tile({}),
+      lng:'',
+      lat:''
       }
     this.map= new ol.Map({
       layers: [new ol.layer.Tile({
@@ -233,18 +239,18 @@ class App extends Component{
             new ol.control.ScaleLine({}),
             new ol.control.ZoomSlider({})
             ])
-
     });
     this.handleKChange=this.handleKChange.bind(this);
     this.handleWChange=this.handleWChange.bind(this);
     this.handleYChange=this.handleYChange.bind(this);
     this.cancelKChange=this.cancelKChange.bind(this);
     this.onChange=this.onChange.bind(this);
+    this.handleLocate=this.handleLocate.bind(this);
     this.handleAddLayer=this.handleAddLayer.bind(this);
+    this.oninputchange=this.oninputchange.bind(this);
   }
   onChange(e,kind){
     this.setState({value:e});
-   //alert(e);
    let value=1-e/100;
    if(kind=="light")
    { 
@@ -255,6 +261,33 @@ class App extends Component{
       this.state.soundlayer.setOpacity(value);
     }
   }
+  oninputchange(e){
+    this.setState({searchcity:e});
+  }
+  handleLocate(e){
+    const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
+    var baimap = new BMap.Map("l-map");    
+    var myGeo = new BMap.Geocoder();      
+      // 将地址解析结果显示在地图上，并调整地图视野
+    
+    var map=this.map;
+    myGeo.getPoint(this.state.searchcity, function(point){ //这里换成用户的输入     
+    if (point) {  
+      //alert(map);
+    map.getView().setCenter([point.lng,point.lat]);
+    map.getView().setZoom(8);
+    }      
+   }, 
+  this.state.searchcity);//规定用户一定要输入城市
+/*
+  this.setState({
+    lng: myGeo.getPoint(this.state.searchcity.lng),
+    lat: myGeo.getPoint(this.state.searchcity.lat)
+  })
+    this.map.getView().setCenter([this.state.lng,this.state.lat]);
+    this.map.getView().setZoom(11);
+  */
+}
   cancelKChange(e){
     this.setState({kind:''});
     if(e=='light')
@@ -272,6 +305,14 @@ class App extends Component{
   }
   handleKChange(e){
     this.setState({kind:e});
+    if(e=="light")
+    {
+      document.getElementById("box").innerHTML="<option value=''>0</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
+    }
+    if(e=="sound")
+    {
+      document.getElementById("box").innerHTML="<option value=''>0</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
+    }
     if(this.state.wuzhong!='')
     {
       this.handleAddLayer(e,this.state.wuzhong,this.state.yuzhi);
@@ -320,14 +361,7 @@ class App extends Component{
     {
       this.setState({wuzhong:e});
     }
-    if(this.state.kind=="light")
-    {
-      document.getElementById("box").innerHTML="<option value=''>0</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
-    }
-    if(this.state.kind=="sound")
-    {
-      document.getElementById("box").innerHTML="<option value=''>0</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
-    }
+    
     //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
       this.handleAddLayer(this.state.kind,e,this.state.yuzhi)
   }
@@ -349,21 +383,7 @@ class App extends Component{
   }
   componentDidMount(){
     this.map.setTarget("allmap");
-        const {BMap,BAMP_STATUS_SUCCESS,BMAP_ANCHOR_TOP_LEFT,BMapLib} = window
-    var baimap = new BMap.Map("l-map");  
-document.getElementById('btn2').onclick=function(){
-// 创建地址解析器实例     
-  var myGeo = new BMap.Geocoder();      
-  // 将地址解析结果显示在地图上，并调整地图视野    
-  myGeo.getPoint("北京市海淀区上地10街10号", function(point){ //这里换成用户的输入     
-    if (point) {  
-       this.map.getView().setCenter([point.lng,point.lat]);
-      this.map.getView().setZoom(11);
-    }      
-   }, 
-  "北京市");//规定用户一定要输入城市
-      
-};
+        
   };
   
   render(){
@@ -378,11 +398,13 @@ document.getElementById('btn2').onclick=function(){
             wuzhong={this.state.wuzhong}
             value={this.state.value}
             onChange={this.onChange}
+            handleLocate={this.handleLocate}
+            oninputchange={this.oninputchange}
             cancelKChange={this.cancelKChange}
             handleKChange={this.handleKChange}
             handleYChange={this.handleYChange}
             handleWChange={this.handleWChange}/>
- 
+ <div id="mouse-position"></div>
           </div>
     )
   }
