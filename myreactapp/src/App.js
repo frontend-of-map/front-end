@@ -5,76 +5,50 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Feature from 'ol/Feature';
 import {Map, Marker, NavigationControl, InfoWindow} from 'react-bmap';
 import $ from 'jquery';
-import {Modal, Button} from 'antd';
+import {Modal, Button,Table,Select} from 'antd';
 import InputRange from'react-input-range';
 import 'antd/es/date-picker/style/css';
 import 'react-input-range/lib/css/index.css';
+import 'katex/dist/katex.min.css';
+import { InlineMath} from 'react-katex';
 var ol = require('openlayers');
+const ButtonGroup=Button.Group;
+const {Option}=Select;
+//const InlineMath = ReactKaTeX.InlineMath;
 require('openlayers/css/ol.css');
-/*
-class Upload extends React.Component {
-  constructor(props){
-    super(props);
-    this.state={
-    loading: false,
-    visible: false
-    };
+class Guanglegend extends React.Component{
+  render(){
+    var h="`W``/`` (m^2 \cdot sr \cdot \mu m)`";
+    //alert("ok");
+    return(
+      <div id="legend">
+        <img src="http://118.31.56.186:8086/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=hu:huguang&STYLE=huguang2"/>
+<div className="formula">
+        <label>单位：</label><InlineMath math="W/(m^2⋅sr⋅μm)"></InlineMath>
+ </div>
+ </div>
+      )
   }
-  showModal = () => {
-    this.setState({
-      visible: true,
-    });
-  };
-
-  handleOk = () => {
-    this.setState({ loading: true });
-    setTimeout(() => {
-      this.setState({ loading: false, visible: false });
-    }, 3000);
-  };
-
-  handleCancel = () => {
-    this.setState({ visible: false });
-  };
-
-  render() {
-    const { visible, loading } = this.state;
-    return (
-      <div>
-        <Button type="primary" onClick={this.showModal}>
-          Open Modal with customized footer
-        </Button>
-        <Modal
-          visible={visible}
-          title="Title"
-          onOk={this.handleOk}
-          onCancel={this.handleCancel}
-          footer={[
-            <Button key="back" onClick={this.handleCancel}>
-              Return
-            </Button>,
-            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-              Submit
-            </Button>,
-          ]}
-        >
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-        </Modal>
-      </div>
-    );
+}
+class Shenglegend extends React.Component{
+  render(){
+    return(
+        <div id="legend">
+        <img src="http://118.31.56.186:8086/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=hu:sheng&STYLE=sheng"/>
+ <div class="formula">
+        <label>单位：</label><span>dB</span>
+ </div>
+ </div>
+    )
   }
-}*/
+}
 class Variousmaps extends React.Component{
   constructor(props){
     super(props);
     this.state={ haschosen:false, 
-                  lvalue:30, 
-                  svalue:30,
-                  tvalue:30,
+                  lvalue:60, 
+                  svalue:60,
+                  tvalue:60,
                   id:"" };
     this.handleKChange=this.handleKChange.bind(this);
     this.onOChange=this.onOChange.bind(this);
@@ -141,15 +115,34 @@ class Animals extends React.Component{
   render(){
     return(
     <div id="animals">
-    <input id="bailu" type="checkbox" className="creature" value="bailu"/>白鹭<input 
-        className="yuzhi" value="2"/>阈值<br/>
-      <input type="checkbox" className="creature" value="bailu"/>燕雀<input 
-        className="yuzhi" value="100"/>阈值<br/>
-      <input type="checkbox" className="creature" value="bailu"/>黑尾蜡嘴<input 
-        className="yuzhi" value="100"/>阈值<br/>
-      <input id="qita" type="checkbox" className="creature" value="bailu" onClick={this.handleWChange}/>其他
-      <select id="box" onChange={this.handleYChange}>
-      </select>阈值<br/>
+    <tbody>
+    <table>
+    <tr>
+        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
+        <th>白鹭</th>
+        <th><input className="yuzhi" value="2"/></th>
+        <th>阈值</th>
+    </tr>
+    <tr>
+        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
+        <th>燕雀</th>
+        <th><input className="yuzhi" value="100"/></th>
+        <th>阈值</th>
+    </tr>
+    <tr>
+        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
+        <th>黑尾蜡嘴</th>
+        <th><input className="yuzhi" value="100"/></th>
+        <th>阈值</th>
+    </tr>
+    <tr>
+        <th><input id="qita" type="checkbox" className="creature" value="bailu" onClick={this.handleWChange}/></th>
+        <th>其他</th>
+        <th><select id="box" onChange={this.handleYChange}></select></th>
+        <th>阈值</th>
+    </tr>
+    </table>
+    </tbody>
     </div>)
   }
 }
@@ -191,11 +184,13 @@ class Frontend extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}/>:null
       }
-      
-  
   <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
   <div id="searchResultPanel" ></div>
-
+  <ButtonGroup>
+  <Button block onClick={this.props.changed_img}>切换影像底图</Button>
+  <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
+  <Button block onClick={this.props.changed_ter}>切换地形底图</Button>
+  </ButtonGroup>
       </div>
     )
   }
@@ -209,14 +204,20 @@ class App extends Component{
       kind:'',
       wuzhong:'',
       yuzhi:'',
-      value:10,
+      lvalue:60,
+      tvalue:60,
+      svalue:60,
       searchcity:'',
       lightlayer:new ol.layer.Tile({}),
       thermolayer:new ol.layer.Tile({}),
       soundlayer:new ol.layer.Tile({}),
       lng:'',
-      lat:''
-      }
+      lat:'',
+      kindlist:new Array(),
+      changed:false,
+      num:1,
+      sheng:false
+    }
     this.map= new ol.Map({
       layers: [new ol.layer.Tile({
         source: new ol.source.OSM()
@@ -226,7 +227,8 @@ class App extends Component{
         center: [118.06, 24.27],
         maxZoom: 19,
         zoom: 10,
-        projection: 'EPSG:4326'
+        projection: 'EPSG:4326',
+        guang:false
       }),
       controls: ol.control.defaults().extend([
                 new ol.control.MousePosition({
@@ -248,17 +250,70 @@ class App extends Component{
     this.handleLocate=this.handleLocate.bind(this);
     this.handleAddLayer=this.handleAddLayer.bind(this);
     this.oninputchange=this.oninputchange.bind(this);
+    this.changed_ter=this.changed_ter.bind(this);
+    this.changed_vec=this.changed_vec.bind(this);
+    this.changed_img=this.changed_img.bind(this);
+  }
+  changed_img(){
+    var img= new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url:  'http://t3.tianditu.com/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=d0cf74b31931aab68af181d23fa23d8d'
+                })
+            })
+    var layersArray=this.map.getLayers()
+ //   this.map.addLayer(img);
+    layersArray.insertAt(this.state.num,img);
+    this.setState({num:this.state.num+1});
+  }
+  changed_vec(){
+    var map_cva= new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: "http://t3.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=d0cf74b31931aab68af181d23fa23d8d"
+                })
+            })
+
+    var map_vec =new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: "http://t4.tianditu.com/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=d0cf74b31931aab68af181d23fa23d8d"
+                })
+            })
+    var layersArray=this.map.getLayers();
+    this.map.removeLayer();
+    layersArray.insertAt(this.state.num,map_vec);
+    layersArray.insertAt(this.state.num+1,map_cva);
+    this.setState({num:this.state.num+2});
+   // this.map.addLayer(map_vec,0);
+   // this.map.addLayer(map_cva,0);
+  }
+  changed_ter(){
+    var map_ter =new ol.layer.Tile({
+                        source: new ol.source.XYZ({
+                            url:  "http://t4.tianditu.com/DataServer?T=ter_w&x={x}&y={y}&l={z}&tk=d0cf74b31931aab68af181d23fa23d8d"
+                            })
+                        })
+    var map_cta =new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: "http://t4.tianditu.com/DataServer?T=cva_w&x={x}&y={y}&l={z}&tk=d0cf74b31931aab68af181d23fa23d8d"
+                })
+            })
+    var layersArray=this.map.getLayers();
+    this.map.removeLayer(layersArray);
+    layersArray.insertAt(this.state.num,map_ter);
+    layersArray.insertAt(this.state.num+1,map_cta);
+    this.setState({num:this.state.num+2});
+  //  this.map.addLayer(map_ter,0);
+   // this.map.addLayer(map_cta,0);
   }
   onChange(e,kind){
-    this.setState({value:e});
-   let value=1-e/100;
    if(kind=="light")
    { 
-      this.state.lightlayer.setOpacity(value);
+      this.setState({lvalue:e});
+      this.state.lightlayer.setOpacity(e/100);
     }
-    if(kind=="sound")
+   if(kind=="sound")
     {
-      this.state.soundlayer.setOpacity(value);
+      this.setState({svalue:e});
+      this.state.soundlayer.setOpacity(e/100);
     }
   }
   oninputchange(e){
@@ -305,13 +360,14 @@ class App extends Component{
   }
   handleKChange(e){
     this.setState({kind:e});
+    this.state.kindlist.push(e);
     if(e=="light")
     {
-      document.getElementById("box").innerHTML="<option value=''>0</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
+      document.getElementById("box").innerHTML="<option value=''>无</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
     }
     if(e=="sound")
     {
-      document.getElementById("box").innerHTML="<option value=''>0</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
+      document.getElementById("box").innerHTML="<option value=''>无</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
     }
     if(this.state.wuzhong!='')
     {
@@ -322,8 +378,16 @@ class App extends Component{
   {
     if(kind=="light")
     {
+      this.setState({sheng:false});
       var tuceng='hu:huguang';
       tuceng=tuceng+yuzhi
+      if(yuzhi=="")
+      {
+        this.setState({guang:true});
+      }
+      else{
+        this.setState({guang:false});
+      }
       var wmsSource = new ol.source.TileWMS({
           url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
             params:{
@@ -335,12 +399,21 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+      layer1.setOpacity(this.state.lvalue/100);
       this.setState({lightlayer:layer1});
     }
     if(kind=="sound")
     {
+      this.setState({guang:false});
       var tuceng='hu:sheng';
       tuceng=tuceng+yuzhi;  
+      if(yuzhi=="")
+      {
+        this.setState({sheng:true});
+      }
+      else{
+        this.setState({sheng:false});
+      }
       var wmsSource = new ol.source.TileWMS({
       url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
        params:{
@@ -352,18 +425,21 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+      layer1.setOpacity(this.state.svalue/100);
       this.setState({soundlayer:layer1});
     }
-    this.map.addLayer(layer1)
+    this.map.addLayer(layer1,1)
   }
   handleWChange(e){
     if(this.state.kind)
     {
       this.setState({wuzhong:e});
     }
-    
+    for(var i=0;i<this.state.kindlist.length;i++)
     //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
-      this.handleAddLayer(this.state.kind,e,this.state.yuzhi)
+    {
+      this.handleAddLayer(this.state.kindlist[i],e,this.state.yuzhi)
+    }  
   }
   handleYChange(e){
     this.setState({yuzhi:e});
@@ -382,8 +458,7 @@ class App extends Component{
     this.handleAddLayer(this.state.kind,this.state.wuzhong,e)
   }
   componentDidMount(){
-    this.map.setTarget("allmap");
-        
+    this.map.setTarget("allmap");      
   };
   
   render(){
@@ -391,7 +466,12 @@ class App extends Component{
     return (
         <div>
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-      
+      {
+                this.state.guang?<Guanglegend/>:null
+            }
+            {
+                this.state.sheng?<Shenglegend/>:null
+            }
   <Frontend 
             kind={this.state.kind} 
             yuzhi={this.state.yuzhi}
@@ -403,8 +483,11 @@ class App extends Component{
             cancelKChange={this.cancelKChange}
             handleKChange={this.handleKChange}
             handleYChange={this.handleYChange}
-            handleWChange={this.handleWChange}/>
- <div id="mouse-position"></div>
+            handleWChange={this.handleWChange}
+            changed_ter={this.changed_ter}
+            changed_vec={this.changed_vec}
+            changed_img={this.changed_img}/>
+            
           </div>
     )
   }

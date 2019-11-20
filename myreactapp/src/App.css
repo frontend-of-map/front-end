@@ -40,11 +40,22 @@ li{
 .yuzhi{
   width: 70px;
 }
+#legend{
+  float: right;position: relative;
+  text-align: right;
+  margin-right:0px;
+}
 #suggestId{width:150px;}
 #searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{
   background-color: white;
   width:250px;
+}
+#dbutton{
+  width:20%;
+}
+#suggestId{
+  width:82%;
 }
 .title{
   background-color: lightgrey;
