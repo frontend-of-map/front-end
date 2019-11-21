@@ -101,24 +101,33 @@ class Variousmaps extends React.Component{
 class Animals extends React.Component{
   constructor(props){
     super(props);
+    this.state={haschosen:false};
     this.handleWChange=this.handleWChange.bind(this);
     this.handleYChange=this.handleYChange.bind(this);
   }
-  handleWChange(e){
-    this.props.handleWChange(e.target.value);
-  }
+  
   handleYChange(e){
     this.props.handleYChange(e.target.value);
     
   }
-  
+  handleWChange(e){
+    this.setState({haschosen:!this.state.haschosen});
+    if(e.target.checked)
+    {
+       this.props.handleWChange(e.target.value);
+    }
+    else
+    {
+      this.props.cancelWChange(e.target.value);
+    }
+  }
   render(){
     return(
     <div id="animals">
     <tbody>
     <table>
     <tr>
-        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
+        <th><input id="bailu" type="checkbox" className="creature" value="bailu" /></th>
         <th>白鹭</th>
         <th><input className="yuzhi" value="2"/></th>
         <th>阈值</th>
@@ -182,7 +191,8 @@ class Frontend extends React.Component{
             yuzhi={this.props.yuzhi}
             wuzhong={this.props.wuzhong}
             handleYChange={this.props.handleYChange}
-            handleWChange={this.props.handleWChange}/>:null
+            handleWChange={this.props.handleWChange}
+            cancelWChange={this.props.cancelWChange}/>:null
       }
   <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
   <div id="searchResultPanel" ></div>
@@ -216,7 +226,10 @@ class App extends Component{
       kindlist:new Array(),
       changed:false,
       num:1,
-      sheng:false
+      sheng:false,
+      wendu:'',
+      shidu:'',
+      fengsu:''
     }
     this.map= new ol.Map({
       layers: [new ol.layer.Tile({
@@ -253,6 +266,8 @@ class App extends Component{
     this.changed_ter=this.changed_ter.bind(this);
     this.changed_vec=this.changed_vec.bind(this);
     this.changed_img=this.changed_img.bind(this);
+    this.deleteChange=this.deleteChange.bind(this);
+    this.cancelWChange=this.cancelWChange.bind(this);
   }
   changed_img(){
     var img= new ol.layer.Tile({
@@ -310,6 +325,11 @@ class App extends Component{
       this.setState({lvalue:e});
       this.state.lightlayer.setOpacity(e/100);
     }
+   if(kind=="thermo")
+   {
+    this.setState({tvalue:e});
+    this.state.thermolayer.setOpacity(e/100);
+   }
    if(kind=="sound")
     {
       this.setState({svalue:e});
@@ -334,36 +354,67 @@ class App extends Component{
     }      
    }, 
   this.state.searchcity);//规定用户一定要输入城市
-/*
-  this.setState({
-    lng: myGeo.getPoint(this.state.searchcity.lng),
-    lat: myGeo.getPoint(this.state.searchcity.lat)
-  })
-    this.map.getView().setCenter([this.state.lng,this.state.lat]);
-    this.map.getView().setZoom(11);
-  */
 }
+  deleteChange(e){
+    var a=this.state.kindlist.indexOf(e);
+    //alert("hi");
+    var x=this.state.kindlist;
+    x.splice(a,1);
+    this.setState({kindlist:x});
+  }
   cancelKChange(e){
     this.setState({kind:''});
     if(e=='light')
     {
       this.map.removeLayer(this.state.lightlayer);
+      this.setState({guang:false});
     }
     if(e=='thermo')
     {
       this.map.removeLayer(this.state.thermolayer);
+      this.setState({shidu:"",fengsu:"",wendu:""});
     }
     if(e=='sound')
     {
       this.map.removeLayer(this.state.soundlayer);
+      this.setState({sheng:false});
     }
+    this.deleteChange(e);
+    //alert(this.state.kindlist);
+  }
+  cancelWChange(e){
+    this.setState({wuzhong:''});
+    for(var i=0;i<this.state.kindlist.length;i++)
+    //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
+    {
+      //alert(this.state.kindlist);
+      if(this.state.kindlist[i]=='light')
+      {
+          this.map.removeLayer(this.state.lightlayer);
+          this.setState({guang:false});
+      }
+      if(this.state.kindlist[i]=='thermo')
+      {
+        this.map.removeLayer(this.state.thermolayer);
+        this.setState({shidu:"",fengsu:"",wendu:""});
+       }
+       if(this.state.kindlist[i]=='sound')
+       {
+          this.map.removeLayer(this.state.soundlayer);
+          this.setState({sheng:false});
+        }
+    } 
   }
   handleKChange(e){
-    this.setState({kind:e});
+    this.setState({kind:e,yuzhi:""});
     this.state.kindlist.push(e);
     if(e=="light")
     {
       document.getElementById("box").innerHTML="<option value=''>无</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
+    }
+    if(e=="thermo")
+    {
+      document.getElementById("box").innerHTML="<option value=''>无</option>";
     }
     if(e=="sound")
     {
@@ -399,8 +450,43 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
-      layer1.setOpacity(this.state.lvalue/100);
+      layer1.setOpacity(this.state.tvalue/100);
       this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+    }
+    if(kind=="thermo")
+    {
+      this.setState({guang:false,sheng:false});
+      //var layer1;
+      $.ajax({
+        url: "http://118.31.56.186:80/relayer",
+        dataType: 'json',
+        cache: false,
+        type:'GET',
+        success: function(data) {
+          this.setState({wendu:"温度:"+data["wenDu"],
+                          shidu:"湿度:"+data["shiDu"],
+                          fengsu:"风速:"+data["fengSu"]});
+          var wmsSource = new ol.source.TileWMS({
+         url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
+          params:{
+            'LAYERS':"hu:"+data["layername"],//要加载的图层，可以为多个
+           'TILED':false,
+           },
+           serverType:'geoserver',//服务器类型
+           });
+           var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+           layer1.setOpacity(this.state.svalue/100);
+           this.setState({thermolayer:layer1});
+           this.map.addLayer(layer1,1)
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+      });
     }
     if(kind=="sound")
     {
@@ -427,8 +513,9 @@ class App extends Component{
            });
       layer1.setOpacity(this.state.svalue/100);
       this.setState({soundlayer:layer1});
+      this.map.addLayer(layer1,1)
     }
-    this.map.addLayer(layer1,1)
+    
   }
   handleWChange(e){
     if(this.state.kind)
@@ -438,6 +525,7 @@ class App extends Component{
     for(var i=0;i<this.state.kindlist.length;i++)
     //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
     {
+      //alert(this.state.kindlist);
       this.handleAddLayer(this.state.kindlist[i],e,this.state.yuzhi)
     }  
   }
@@ -472,6 +560,7 @@ class App extends Component{
             {
                 this.state.sheng?<Shenglegend/>:null
             }
+          <div id="tshow">{this.state.wendu} {this.state.shidu} {this.state.fengsu}</div>
   <Frontend 
             kind={this.state.kind} 
             yuzhi={this.state.yuzhi}
@@ -486,8 +575,9 @@ class App extends Component{
             handleWChange={this.handleWChange}
             changed_ter={this.changed_ter}
             changed_vec={this.changed_vec}
-            changed_img={this.changed_img}/>
-            
+            changed_img={this.changed_img}
+            cancelWChange={this.cancelWChange}/>
+          
           </div>
     )
   }

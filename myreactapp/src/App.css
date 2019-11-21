@@ -57,6 +57,11 @@ li{
 #suggestId{
   width:82%;
 }
+#tshow{
+  position: relative;
+  left: 50px;
+  margin-bottom:0px;
+}
 .title{
   background-color: lightgrey;
 }
