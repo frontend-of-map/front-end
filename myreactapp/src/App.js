@@ -22,7 +22,7 @@ class Guanglegend extends React.Component{
     //alert("ok");
     return(
       <div id="legend">
-        <img src="http://118.31.56.186:8086/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=hu:huguang&STYLE=huguang2"/>
+        <img src="./light.jpeg"/>
 <div className="formula">
         <label>单位：</label><InlineMath math="W/(m^2⋅sr⋅μm)"></InlineMath>
  </div>
@@ -34,7 +34,7 @@ class Shenglegend extends React.Component{
   render(){
     return(
         <div id="legend">
-        <img src="http://118.31.56.186:8086/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=hu:sheng&STYLE=sheng"/>
+        <img src="./sound.jpeg"/>
  <div class="formula">
         <label>单位：</label><span>dB</span>
  </div>
@@ -72,7 +72,7 @@ class Variousmaps extends React.Component{
       <div id="vmaps">
       <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>光环境地图
       <InputRange
-        id="light"
+        id="Light"
         maxValue={100}
         minValue={0}
         value={this.state.lvalue}
@@ -195,12 +195,17 @@ class Frontend extends React.Component{
             cancelWChange={this.props.cancelWChange}/>:null
       }
   <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
-  <div id="searchResultPanel" ></div>
   <ButtonGroup>
   <Button block onClick={this.props.changed_img}>切换影像底图</Button>
   <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
   <Button block onClick={this.props.changed_ter}>切换地形底图</Button>
   </ButtonGroup>
+  {
+                this.props.guang?<Guanglegend/>:null
+            }
+            {
+                this.props.sheng?<Shenglegend/>:null
+            }
       </div>
     )
   }
@@ -422,11 +427,12 @@ class App extends Component{
     }
     if(this.state.wuzhong!='')
     {
-      this.handleAddLayer(e,this.state.wuzhong,this.state.yuzhi);
+      this.handleAddLayer(e,this.state.wuzhong,"");
     }
   }
   handleAddLayer(kind,wuzhong,yuzhi)
   {
+    //alert(kind+wuzhong+yuzhi);
     if(kind=="light")
     {
       this.setState({sheng:false});
@@ -490,6 +496,7 @@ class App extends Component{
     }
     if(kind=="sound")
     {
+     // alert(yuzhi);
       this.setState({guang:false});
       var tuceng='hu:sheng';
       tuceng=tuceng+yuzhi;  
@@ -513,7 +520,7 @@ class App extends Component{
            });
       layer1.setOpacity(this.state.svalue/100);
       this.setState({soundlayer:layer1});
-      this.map.addLayer(layer1,1)
+      this.map.addLayer(layer1)
     }
     
   }
@@ -554,12 +561,6 @@ class App extends Component{
     return (
         <div>
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-      {
-                this.state.guang?<Guanglegend/>:null
-            }
-            {
-                this.state.sheng?<Shenglegend/>:null
-            }
           <div id="tshow">{this.state.wendu} {this.state.shidu} {this.state.fengsu}</div>
   <Frontend 
             kind={this.state.kind} 
@@ -576,7 +577,9 @@ class App extends Component{
             changed_ter={this.changed_ter}
             changed_vec={this.changed_vec}
             changed_img={this.changed_img}
-            cancelWChange={this.cancelWChange}/>
+            cancelWChange={this.cancelWChange}
+            guang={this.state.guang}
+            sheng={this.state.sheng}/>
           
           </div>
     )

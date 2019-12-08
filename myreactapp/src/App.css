@@ -31,7 +31,9 @@ li{
   background-color: white;
   width:250px;
   position:relative;
-  top:280px;
+  top:225px;
+  left: 7px;
+  height: 30%;
 }
 #animals{
   background-color: white;
@@ -40,16 +42,15 @@ li{
 .yuzhi{
   width: 70px;
 }
-#legend{
-  float: right;position: relative;
-  text-align: right;
-  margin-right:0px;
-}
+
 #suggestId{width:150px;}
 #searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{
   background-color: white;
   width:250px;
+}
+#legend img{
+  width: 250px;
 }
 #dbutton{
   width:20%;
@@ -70,3 +71,6 @@ li{
 }
 #map{position:absolute;margin-top:0px;left:0;
 height: 100%;width:100%;overflow: hidden;}
+#map .ol-zoomslider{
+  height: 30%;
+}
