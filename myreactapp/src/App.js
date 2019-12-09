@@ -256,7 +256,6 @@ class App extends Component{
             target: document.getElementById('mouse-position'),      // 将控件渲染在该DOM元素中
             undefinedHTML: '&nbsp;'                                 // 鼠标离开地图时，显示空格
                 }),      // 实例化坐标拾取控件，并加入地图
-            new ol.control.ScaleLine({}),
             new ol.control.ZoomSlider({})
             ])
     });
@@ -559,7 +558,7 @@ class App extends Component{
   render(){
 
     return (
-        <div>
+        <div id="all">
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
           <div id="tshow">{this.state.wendu} {this.state.shidu} {this.state.fengsu}</div>
   <Frontend 

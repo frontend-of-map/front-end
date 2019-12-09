@@ -31,9 +31,10 @@ li{
   background-color: white;
   width:250px;
   position:relative;
-  top:225px;
+  top:240px;
   left: 7px;
-  height: 30%;
+  max-height: calc(58vh);
+  overflow: auto;
 }
 #animals{
   background-color: white;
