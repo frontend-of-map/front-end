@@ -128,7 +128,7 @@ class Animals extends React.Component{
     <table>
     <tr>
         <th><input id="bailu" type="checkbox" className="creature" value="bailu" /></th>
-        <th>白鹭</th>
+        <th>鹭鸟</th>
         <th><input className="yuzhi" value="2"/></th>
         <th>阈值</th>
     </tr>

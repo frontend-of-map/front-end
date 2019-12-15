@@ -16,7 +16,14 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
+.input-range{
+  max-width:235px;
+  margin-bottom: 15px;
+  
+  max-height: 10px;
+  left:5px;
+  right: 5px;
+}
 .App-link {
   color: #09d3ac;
   display: inline;
