@@ -42,16 +42,30 @@ class Shenglegend extends React.Component{
     )
   }
 }
+class Relegend extends React.Component{
+  render(){
+    return(
+        <div id="legend">
+        <img src="./re.jpeg"/>
+ <div class="formula">
+        <label>单位：</label><span>颜色和内容暂定</span>
+ </div>
+ </div>
+    )
+  }
+}
 class Variousmaps extends React.Component{
   constructor(props){
     super(props);
     this.state={ haschosen:false, 
+                  guangtype:[],
                   lvalue:60, 
                   svalue:60,
                   tvalue:60,
                   id:"" };
     this.handleKChange=this.handleKChange.bind(this);
     this.onOChange=this.onOChange.bind(this);
+    //alert(this.props.guangtype)
   }
   onOChange(e){
     this.props.onChange(e,this.state.id);
@@ -67,7 +81,10 @@ class Variousmaps extends React.Component{
       this.props.cancelKChange(e.target.value);
     }
   }
+  
   render(){
+    if(this.state.guangtype!=undefined){
+      //alert(this.state.guangtype)
     return(
       <div id="vmaps">
       <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>光环境地图
@@ -77,15 +94,15 @@ class Variousmaps extends React.Component{
         minValue={0}
         value={this.state.lvalue}
         onChange={lvalue => this.setState({ lvalue,id:"light" })}
-        onChangeComplete={this.onOChange} />      
-      <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
-      <InputRange
-        id="thermo"
-        maxValue={100}
-        minValue={0}
-        value={this.state.tvalue}
-        onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
-        onChangeComplete={this.onOChange} /> 
+        onChangeComplete={this.onOChange} />   
+      <Guanglegend/>
+      <Animals  
+            kind={this.props.kind}
+            wuzhong={this.props.wuzhong}
+            data={this.props.guangtype}
+            handleYChange={this.props.handleYChange}
+            handleWChange={this.props.handleWChange}
+            cancelWChange={this.props.cancelWChange}/>   
       <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <InputRange
         id="sound"
@@ -94,62 +111,92 @@ class Variousmaps extends React.Component{
         value={this.state.svalue}
         onChange={svalue => this.setState({ svalue,id:"sound" })}
         onChangeComplete={this.onOChange} /> 
+      <Shenglegend/>
+      <Animals  
+            kind={this.props.kind}
+            data={this.props.shengtype}
+            wuzhong={this.props.wuzhong}
+            handleYChange={this.props.handleYChange}
+            handleWChange={this.props.handleWChange}
+            cancelWChange={this.props.cancelWChange}/>
+      <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
+      <InputRange
+        id="thermo"
+        maxValue={100}
+        minValue={0}
+        value={this.state.tvalue}
+        onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
+        onChangeComplete={this.onOChange} />
+      <Relegend/> 
+      <Animals  
+            kind={this.props.kind}
+            data={this.props.retype}
+            wuzhong={this.props.wuzhong}
+            handleYChange={this.props.handleYChange}
+            handleWChange={this.props.handleWChange}
+            cancelWChange={this.props.cancelWChange}/>
       </div>
     );
+  }
   }
 }
 class Animals extends React.Component{
   constructor(props){
     super(props);
-    this.state={haschosen:false};
+    this.state={data:this.props.data,haschosen:false};
     this.handleWChange=this.handleWChange.bind(this);
-    this.handleYChange=this.handleYChange.bind(this);
+    //this.handleYChange=this.handleYChange.bind(this);
   }
   
-  handleYChange(e){
-    this.props.handleYChange(e.target.value);
-    
-  }
+  
   handleWChange(e){
     this.setState({haschosen:!this.state.haschosen});
+    
     if(e.target.checked)
     {
-       this.props.handleWChange(e.target.value);
+       this.props.handleWChange(e.target.id,e.target.value);
     }
     else
     {
       this.props.cancelWChange(e.target.value);
     }
+    
+    //alert(e.target.value);
   }
   render(){
+    let onerow=[];
+    this.props.data.map((rowinfo)=>{
+      if("species" in rowinfo)
+      {
+        if(rowinfo["species"]!="")
+      {onerow.push(
+        <tr>
+        <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
+        <th>{rowinfo["species"]}</th>
+        <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
+        <th>阈值</th>
+        </tr>
+      )}
+      else{
+        this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
+      }}
+      else if(rowinfo["type"]=="人"){
+        onerow.push(
+        <tr>
+        <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
+        <th>{rowinfo["type"]}</th>
+        <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
+        <th>阈值</th>
+        </tr>
+      )
+      }
+    }
+    )
     return(
     <div id="animals">
     <tbody>
     <table>
-    <tr>
-        <th><input id="bailu" type="checkbox" className="creature" value="bailu" /></th>
-        <th>鹭鸟</th>
-        <th><input className="yuzhi" value="2"/></th>
-        <th>阈值</th>
-    </tr>
-    <tr>
-        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
-        <th>燕雀</th>
-        <th><input className="yuzhi" value="100"/></th>
-        <th>阈值</th>
-    </tr>
-    <tr>
-        <th><input id="bailu" type="checkbox" className="creature" value="bailu"/></th>
-        <th>黑尾蜡嘴</th>
-        <th><input className="yuzhi" value="100"/></th>
-        <th>阈值</th>
-    </tr>
-    <tr>
-        <th><input id="qita" type="checkbox" className="creature" value="bailu" onClick={this.handleWChange}/></th>
-        <th>其他</th>
-        <th><select id="box" onChange={this.handleYChange}></select></th>
-        <th>阈值</th>
-    </tr>
+    {onerow}
     </table>
     </tbody>
     </div>)
@@ -158,7 +205,9 @@ class Animals extends React.Component{
 class Frontend extends React.Component{
   constructor(props){
     super(props);
-    this.state={firstVisible:true,secondVisible:true};
+    //alert(this.props.guangtype);
+    //this.state={guangtype:this.props.guangtype};
+    this.state={guangtype:this.props.guangtype,firstVisible:true,secondVisible:true};
     this.onfirstClick=this.onfirstClick.bind(this);
     this.onsecondClick=this.onsecondClick.bind(this);    
     this.oninputchange=this.oninputchange.bind(this);
@@ -179,33 +228,27 @@ class Frontend extends React.Component{
   render(){
     return(
       <div id="choices">
-      <div onClick={this.onfirstClick} className="title">物理环境地图</div>
-      {
-        this.state.firstVisible?<Variousmaps value={this.props.value} onChange={this.props.onChange}
-                kind={this.props.kind}  cancelKChange={this.props.cancelKChange} handleKChange={this.props.handleKChange}/>:null
-      }
-      <div onClick={this.onsecondClick} className="title">物种</div>
-      {
-        this.state.secondVisible?<Animals  
-            kind={this.props.kind}
-            yuzhi={this.props.yuzhi}
-            wuzhong={this.props.wuzhong}
-            handleYChange={this.props.handleYChange}
-            handleWChange={this.props.handleWChange}
-            cancelWChange={this.props.cancelWChange}/>:null
-      }
+      <div className="title">物理环境地图及风险物种</div>
+      <Variousmaps 
+                value={this.props.value} 
+                onChange={this.props.onChange}
+                kind={this.props.kind}  
+                cancelKChange={this.props.cancelKChange} 
+                handleKChange={this.props.handleKChange}
+                wuzhong={this.props.wuzhong}
+                handleYChange={this.props.handleYChange}
+                handleWChange={this.props.handleWChange}
+                cancelWChange={this.props.cancelWChange}
+                guangtype={this.props.guangtype}
+                shengtype={this.props.shengtype}
+                retype={this.props.retype}/>
   <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
   <ButtonGroup>
   <Button block onClick={this.props.changed_img}>切换影像底图</Button>
   <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
   <Button block onClick={this.props.changed_ter}>切换地形底图</Button>
   </ButtonGroup>
-  {
-                this.props.guang?<Guanglegend/>:null
-            }
-            {
-                this.props.sheng?<Shenglegend/>:null
-            }
+  
       </div>
     )
   }
@@ -218,11 +261,14 @@ class App extends Component{
     this.state={
       kind:'',
       wuzhong:'',
-      yuzhi:'',
+      yuzhi:[],
       lvalue:60,
       tvalue:60,
       svalue:60,
       searchcity:'',
+      guangtype:[],
+      shengtype:[],
+      retype:[],
       lightlayer:new ol.layer.Tile({}),
       thermolayer:new ol.layer.Tile({}),
       soundlayer:new ol.layer.Tile({}),
@@ -410,27 +456,75 @@ class App extends Component{
     } 
   }
   handleKChange(e){
-    this.setState({kind:e,yuzhi:""});
+    /*this.setState({kind:e,yuzhi:""});
     this.state.kindlist.push(e);
-    if(e=="light")
-    {
-      document.getElementById("box").innerHTML="<option value=''>无</option><option value='100.8'>100.8</option><option value='62.82'>62.82</option><option value='80.83'>80.83</option>"
-    }
-    if(e=="thermo")
-    {
-      document.getElementById("box").innerHTML="<option value=''>无</option>";
-    }
-    if(e=="sound")
-    {
-      document.getElementById("box").innerHTML="<option value=''>无</option><option value='62'>62</option><option value='66'>66</option><option value='70'>70</option>"
-    }
+    
     if(this.state.wuzhong!='')
     {
       this.handleAddLayer(e,this.state.wuzhong,"");
     }
+    */
   }
-  handleAddLayer(kind,wuzhong,yuzhi)
+  
+  handleAddLayer(type,id)
   {
+    //alert(this.state.yuzhi);
+    if(type=="guang")
+    {
+      var tuceng=type+id;
+    var wmsSource = new ol.source.TileWMS({
+          url:'http://118.31.56.186:8086/geoserver/test2/wms',//根据自己的服务器填写
+            params:{
+              'LAYERS':tuceng,//要加载的图层，可以为多个
+               'TILED':false,
+            },
+            serverType:'geoserver',//服务器类型
+          })
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      layer1.setOpacity(this.state.tvalue/100);
+      this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+    }
+    if(type=="sheng")
+    {
+      var tuceng=type+id;
+    var wmsSource = new ol.source.TileWMS({
+          url:'http://118.31.56.186:8086/geoserver/test2/wms',//根据自己的服务器填写
+            params:{
+              'LAYERS':tuceng,//要加载的图层，可以为多个
+               'TILED':false,
+            },
+            serverType:'geoserver',//服务器类型
+          })
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      layer1.setOpacity(this.state.tvalue/100);
+      this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+    }
+    if(type=="re")
+    {
+
+      var tuceng=type+id;
+    var wmsSource = new ol.source.TileWMS({
+          url:'http://118.31.56.186:8086/geoserver/test2/wms',//根据自己的服务器填写
+            params:{
+              'LAYERS':tuceng,//要加载的图层，可以为多个
+               'TILED':false,
+            },
+            serverType:'geoserver',//服务器类型
+          })
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      layer1.setOpacity(this.state.tvalue/100);
+      this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+    }
+    /*
     //alert(kind+wuzhong+yuzhi);
     if(kind=="light")
     {
@@ -521,22 +615,42 @@ class App extends Component{
       this.setState({soundlayer:layer1});
       this.map.addLayer(layer1)
     }
-    
+    */
   }
-  handleWChange(e){
+  
+  handleWChange(id,value){
+    //alert(this.state.yuzhi);
     if(this.state.kind)
     {
-      this.setState({wuzhong:e});
+      //this.setState({wuzhong:e});
     }
+    if(value=="光")
+    {
+        this.handleAddLayer("guang",id);
+    }
+    if(value=="声")
+    {
+      this.handleAddLayer("sheng",id);
+    }
+    if(value=="人")
+    {
+      this.handleAddLayer("re",id)
+    }
+    /*
     for(var i=0;i<this.state.kindlist.length;i++)
     //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
     {
       //alert(this.state.kindlist);
-      this.handleAddLayer(this.state.kindlist[i],e,this.state.yuzhi)
+      this.handleAddLayer(this.state.kindlist[i],e)
     }  
+    """
+    */
   }
-  handleYChange(e){
-    this.setState({yuzhi:e});
+  handleYChange(type,id){
+    let temp=this.state.yuzhi;
+    temp[type]=id;
+    this.state.yuzhi[type]=id;
+    /*this.setState({yuzhi:e});
     if(this.state.kind=="light")
     {
       this.map.removeLayer(this.state.lightlayer);
@@ -549,21 +663,66 @@ class App extends Component{
     {
       this.map.removeLayer(this.state.soundlayer);
     }
-    this.handleAddLayer(this.state.kind,this.state.wuzhong,e)
+    this.handleAddLayer(this.state.kind,this.state.wuzhong,e)*/
   }
+  
   componentDidMount(){
-    this.map.setTarget("allmap");      
+    this.map.setTarget("allmap"); 
+  }
+  componentWillMount(){
+       
+    $.ajax({
+        url: "http://118.31.56.186:80/api/guanglayers",
+        dataType: 'json',
+        cache: false,
+        type:'GET',
+        success: function(data) {
+          this.setState({guangtype:data})
+         // alert(data[0]["species"])
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+      }); 
+    $.ajax({
+        url: "http://118.31.56.186:80/api/shenglayers",
+        dataType: 'json',
+        cache: false,
+        type:'GET',
+        success: function(data) {
+          this.setState({shengtype:data})
+         // alert(data[0]["species"])
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+      });   
+    $.ajax({
+        url: "http://118.31.56.186:80/api/relayer",
+        dataType: 'json',
+        cache: false,
+        type:'GET',
+        success: function(data) {
+          this.setState({retype:data})
+         // alert(data[0]["species"])
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+      });
   };
   
   render(){
-
+       // alert(this.state.guangtype)
     return (
         <div id="all">
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
           <div id="tshow">{this.state.wendu} {this.state.shidu} {this.state.fengsu}</div>
   <Frontend 
             kind={this.state.kind} 
-            yuzhi={this.state.yuzhi}
             wuzhong={this.state.wuzhong}
             value={this.state.value}
             onChange={this.onChange}
@@ -578,7 +737,10 @@ class App extends Component{
             changed_img={this.changed_img}
             cancelWChange={this.cancelWChange}
             guang={this.state.guang}
-            sheng={this.state.sheng}/>
+            sheng={this.state.sheng}
+            guangtype={this.state.guangtype}
+            shengtype={this.state.shengtype}
+            retype={this.state.retype}/>
           
           </div>
     )
