@@ -158,7 +158,7 @@ class Animals extends React.Component{
     }
     else
     {
-      this.props.cancelWChange(e.target.value);
+      this.props.cancelWChange(e.target.id,e.target.value);
     }
     
     //alert(e.target.value);
@@ -180,7 +180,11 @@ class Animals extends React.Component{
       else{
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
       }}
-      else if(rowinfo["type"]=="人"){
+      else if(rowinfo["type"]==null)
+      {
+        this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
+      }
+      else {
         onerow.push(
         <tr>
         <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
@@ -269,12 +273,16 @@ class App extends Component{
       guangtype:[],
       shengtype:[],
       retype:[],
+      guangyuzhi:'',
+      shengyuzhi:'',
+      reyuzhi:'',
       lightlayer:new ol.layer.Tile({}),
       thermolayer:new ol.layer.Tile({}),
       soundlayer:new ol.layer.Tile({}),
       lng:'',
       lat:'',
       kindlist:new Array(),
+      layers:{},
       changed:false,
       num:1,
       sheng:false,
@@ -413,57 +421,59 @@ class App extends Component{
     this.setState({kindlist:x});
   }
   cancelKChange(e){
-    this.setState({kind:''});
-    if(e=='light')
+    let temp;
+    if(e=="light")
     {
-      this.map.removeLayer(this.state.lightlayer);
-      this.setState({guang:false});
+      //alert(this.state.guangyuzhi);
+      temp="guang"+this.state.guangyuzhi;
     }
-    if(e=='thermo')
+    if(e=="sound")
     {
-      this.map.removeLayer(this.state.thermolayer);
-      this.setState({shidu:"",fengsu:"",wendu:""});
+      //alert(this.state.shengyuzhi);
+      temp="sheng"+this.state.shengyuzhi;
     }
-    if(e=='sound')
+    if(e=="thermo")
     {
-      this.map.removeLayer(this.state.soundlayer);
-      this.setState({sheng:false});
+      //alert(this.state.reyuzhi);
+      temp="re"+this.state.reyuzhi;
     }
-    this.deleteChange(e);
-    //alert(this.state.kindlist);
+    this.map.removeLayer(this.state.layers[temp]);
   }
-  cancelWChange(e){
-    this.setState({wuzhong:''});
-    for(var i=0;i<this.state.kindlist.length;i++)
-    //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
+  cancelWChange(id,type){
+    //alert(type);
+    if(type=="光")
     {
-      //alert(this.state.kindlist);
-      if(this.state.kindlist[i]=='light')
-      {
-          this.map.removeLayer(this.state.lightlayer);
-          this.setState({guang:false});
-      }
-      if(this.state.kindlist[i]=='thermo')
-      {
-        this.map.removeLayer(this.state.thermolayer);
-        this.setState({shidu:"",fengsu:"",wendu:""});
-       }
-       if(this.state.kindlist[i]=='sound')
-       {
-          this.map.removeLayer(this.state.soundlayer);
-          this.setState({sheng:false});
-        }
-    } 
+      type="guang";
+    }
+    if(type=="声")
+    {
+      type="sheng";
+    }
+    else if(type=="人" || type==null)
+    {
+      type="re";
+    }
+    let temp=type+id;
+    //alert(temp);
+    this.map.removeLayer(this.state.layers[temp]);
+
   }
   handleKChange(e){
-    /*this.setState({kind:e,yuzhi:""});
-    this.state.kindlist.push(e);
-    
-    if(this.state.wuzhong!='')
+    if(e=="light")
     {
-      this.handleAddLayer(e,this.state.wuzhong,"");
+      //alert(this.state.guangyuzhi);
+      this.handleAddLayer("guang",this.state.guangyuzhi);
     }
-    */
+    if(e=="sound")
+    {
+      //alert(this.state.shengyuzhi);
+      this.handleAddLayer("sheng",this.state.shengyuzhi);
+    }
+    if(e=="thermo")
+    {
+      //alert(this.state.reyuzhi);
+      this.handleAddLayer("re",this.state.reyuzhi);
+    }
   }
   
   handleAddLayer(type,id)
@@ -483,8 +493,20 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+      var tempdata;
+      let p=new Promise((resolve,reject)=>{
+       tempdata=this.state.layers;
+        tempdata[tuceng]=layer1;
+        this.setState({layers:tempdata});
+       //console.log("abc");
+       resolve("success");
+        reject('reject')
+        
+      })
+      //p.bind(this);
+      p.then(function(value){ console.log(tempdata)},function(value){alert("fail")});
       layer1.setOpacity(this.state.tvalue/100);
-      this.setState({lightlayer:layer1});
+      //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
     }
     if(type=="sheng")
@@ -501,8 +523,12 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+
+      var tempdata=this.state.layers;
+      tempdata[tuceng]=layer1;
+      this.setState({layers:tempdata});
       layer1.setOpacity(this.state.tvalue/100);
-      this.setState({lightlayer:layer1});
+      //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
     }
     if(type=="re")
@@ -520,110 +546,26 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
+      let p=new Promise((resolve,reject)=>{
+       tempdata=this.state.layers;
+        tempdata[tuceng]=layer1;
+        this.setState({layers:tempdata});
+       //console.log("abc");
+       resolve("success");
+        reject('reject')
+        
+      })
+      //p.bind(this);
+      p.then(function(value){ console.log(tempdata)},function(value){alert("fail")});
+      
       layer1.setOpacity(this.state.tvalue/100);
-      this.setState({lightlayer:layer1});
+      //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
     }
-    /*
-    //alert(kind+wuzhong+yuzhi);
-    if(kind=="light")
-    {
-      this.setState({sheng:false});
-      var tuceng='hu:huguang';
-      tuceng=tuceng+yuzhi
-      if(yuzhi=="")
-      {
-        this.setState({guang:true});
-      }
-      else{
-        this.setState({guang:false});
-      }
-      var wmsSource = new ol.source.TileWMS({
-          url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-            params:{
-              'LAYERS':tuceng,//要加载的图层，可以为多个
-               'TILED':false,
-            },
-            serverType:'geoserver',//服务器类型
-          })
-      var layer1 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-      layer1.setOpacity(this.state.tvalue/100);
-      this.setState({lightlayer:layer1});
-      this.map.addLayer(layer1,1)
-    }
-    if(kind=="thermo")
-    {
-      this.setState({guang:false,sheng:false});
-      //var layer1;
-      $.ajax({
-        url: "http://118.31.56.186:80/relayer",
-        dataType: 'json',
-        cache: false,
-        type:'GET',
-        success: function(data) {
-          this.setState({wendu:"温度:"+data["wenDu"],
-                          shidu:"湿度:"+data["shiDu"],
-                          fengsu:"风速:"+data["fengSu"]});
-          var wmsSource = new ol.source.TileWMS({
-         url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-          params:{
-            'LAYERS':"hu:"+data["layername"],//要加载的图层，可以为多个
-           'TILED':false,
-           },
-           serverType:'geoserver',//服务器类型
-           });
-           var layer1 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-           layer1.setOpacity(this.state.svalue/100);
-           this.setState({thermolayer:layer1});
-           this.map.addLayer(layer1,1)
-        }.bind(this),
-        error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-            alert(thrownError);
-        }.bind(this)
-      });
-    }
-    if(kind=="sound")
-    {
-     // alert(yuzhi);
-      this.setState({guang:false});
-      var tuceng='hu:sheng';
-      tuceng=tuceng+yuzhi;  
-      if(yuzhi=="")
-      {
-        this.setState({sheng:true});
-      }
-      else{
-        this.setState({sheng:false});
-      }
-      var wmsSource = new ol.source.TileWMS({
-      url:'http://118.31.56.186:8086/geoserver/hu/wms',//根据自己的服务器填写
-       params:{
-            'LAYERS':tuceng,//要加载的图层，可以为多个
-           'TILED':false,
-        },
-      serverType:'geoserver',//服务器类型
-      });
-      var layer1 = new ol.layer.Tile({
-                 source:wmsSource
-           });
-      layer1.setOpacity(this.state.svalue/100);
-      this.setState({soundlayer:layer1});
-      this.map.addLayer(layer1)
-    }
-    */
   }
   
   handleWChange(id,value){
-    //alert(this.state.yuzhi);
-    if(this.state.kind)
-    {
-      //this.setState({wuzhong:e});
-    }
+    
     if(value=="光")
     {
         this.handleAddLayer("guang",id);
@@ -636,34 +578,22 @@ class App extends Component{
     {
       this.handleAddLayer("re",id)
     }
-    /*
-    for(var i=0;i<this.state.kindlist.length;i++)
-    //此处使用于其他，有固定阈值的物种需要先将阈值放入yuzhi，再调用函数
-    {
-      //alert(this.state.kindlist);
-      this.handleAddLayer(this.state.kindlist[i],e)
-    }  
-    """
-    */
   }
   handleYChange(type,id){
-    let temp=this.state.yuzhi;
-    temp[type]=id;
-    this.state.yuzhi[type]=id;
-    /*this.setState({yuzhi:e});
-    if(this.state.kind=="light")
+    if(type=="光" && this.state.guangyuzhi!=id)
     {
-      this.map.removeLayer(this.state.lightlayer);
+      this.setState({guangyuzhi:id});
+      //alert("hi");
     }
-    if(this.state.kind=="thermo")
+    if(type=="声" && this.state.shengyuzhi!=id)
     {
-      this.map.removeLayer(this.state.thermolayer);
+      this.setState({shengyuzhi:id});
+      //alert("hi");
     }
-    if(this.state.kind=="sound")
+    if(type==null && this.state.reyuzhi!=id)
     {
-      this.map.removeLayer(this.state.soundlayer);
+      this.setState({reyuzhi:id});
     }
-    this.handleAddLayer(this.state.kind,this.state.wuzhong,e)*/
   }
   
   componentDidMount(){
@@ -747,4 +677,3 @@ class App extends Component{
   }
 }
 export default App;
-
