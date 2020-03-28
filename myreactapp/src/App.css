@@ -36,7 +36,7 @@ li{
 }
 #choices{
   background-color: white;
-  width:250px;
+  width:255px;
   position:relative;
   top:240px;
   left: 7px;
@@ -46,6 +46,7 @@ li{
 #animals{
   background-color: white;
   width:250px;
+  font-weight: lighter;
 }
 .yuzhi{
   width: 70px;
@@ -58,6 +59,7 @@ li{
   width:250px;
 }
 #legend img{
+  margin-top: 4px;
   width: 250px;
 }
 #dbutton{
@@ -82,3 +84,12 @@ height: 100%;width:100%;overflow: hidden;}
 #map .ol-zoomslider{
   height: 30%;
 }
+.bold{
+  font-weight: bolder;
+}
+.link-top {
+            width: 100%;
+            margin-top: 5px;
+            height: 1px;
+            border-top: solid lightgrey 2px;
+        }

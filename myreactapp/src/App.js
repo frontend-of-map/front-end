@@ -47,9 +47,17 @@ class Relegend extends React.Component{
     return(
         <div id="legend">
         <img src="./re.jpeg"/>
- <div class="formula">
-        <label>单位：</label><span>颜色和内容暂定</span>
+
  </div>
+    )
+  }
+}
+class Renlegend extends React.Component{
+  render(){
+    return(
+        <div id="legend">
+        <img src="./ren.jpeg"/>
+
  </div>
     )
   }
@@ -86,7 +94,7 @@ class Variousmaps extends React.Component{
     if(this.state.guangtype!=undefined){
       //alert(this.state.guangtype)
     return(
-      <div id="vmaps">
+      <div id="vmaps" className="bold">
       <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>光环境地图
       <InputRange
         id="Light"
@@ -103,6 +111,7 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}/>   
+      <div class="link-top"></div>
       <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <InputRange
         id="sound"
@@ -119,6 +128,7 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}/>
+      <div class="link-top"></div>
       <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <InputRange
         id="thermo"
@@ -135,6 +145,7 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}/>
+      <Renlegend/>
       </div>
     );
   }
