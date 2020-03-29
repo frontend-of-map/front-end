@@ -36,12 +36,13 @@ li{
 }
 #choices{
   background-color: white;
-  width:255px;
+  width:260px;
   position:relative;
   top:240px;
   left: 7px;
   max-height: calc(58vh);
   overflow: auto;
+  overflow-x: hidden;
 }
 #animals{
   background-color: white;
@@ -56,7 +57,8 @@ li{
 #searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{
   background-color: white;
-  width:250px;
+  margin-left:2px;
+  margin-right: 2px;
 }
 #legend img{
   margin-top: 4px;

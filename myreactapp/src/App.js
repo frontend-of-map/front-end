@@ -46,7 +46,7 @@ class Relegend extends React.Component{
   render(){
     return(
         <div id="legend">
-        <img src="./re.jpeg"/>
+        <img src="./ren.jpeg"/>
 
  </div>
     )
@@ -56,7 +56,7 @@ class Renlegend extends React.Component{
   render(){
     return(
         <div id="legend">
-        <img src="./ren.jpeg"/>
+        <img src="./renew.jpeg"/>
 
  </div>
     )
