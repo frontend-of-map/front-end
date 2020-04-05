@@ -110,7 +110,8 @@ class Variousmaps extends React.Component{
             data={this.props.guangtype}
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
-            cancelWChange={this.props.cancelWChange}/>   
+            cancelWChange={this.props.cancelWChange}
+            handleFChange={this.props.handleFChange}/>   
       <div class="link-top"></div>
       <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <InputRange
@@ -127,7 +128,8 @@ class Variousmaps extends React.Component{
             wuzhong={this.props.wuzhong}
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
-            cancelWChange={this.props.cancelWChange}/>
+            cancelWChange={this.props.cancelWChange}
+            handleFChange={this.props.handleFChange}/>
       <div class="link-top"></div>
       <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <InputRange
@@ -144,7 +146,8 @@ class Variousmaps extends React.Component{
             wuzhong={this.props.wuzhong}
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
-            cancelWChange={this.props.cancelWChange}/>
+            cancelWChange={this.props.cancelWChange}
+            handleFChange={this.props.handleFChange}/>
       <Renlegend/>
       </div>
     );
@@ -178,7 +181,7 @@ class Animals extends React.Component{
     let onerow=[];
     this.props.data.map((rowinfo)=>{
       if("species" in rowinfo)
-      {
+    {
         if(rowinfo["species"]!="")
       {onerow.push(
         <tr>
@@ -190,12 +193,15 @@ class Animals extends React.Component{
       )}
       else{
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
-      }}
+      }
+    }
       else if(rowinfo["type"]==null)
-      {
+      { 
+        this.props.handleFChange("thermo",rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
       }
       else {
+        this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
         onerow.push(
         <tr>
         <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
@@ -256,7 +262,8 @@ class Frontend extends React.Component{
                 cancelWChange={this.props.cancelWChange}
                 guangtype={this.props.guangtype}
                 shengtype={this.props.shengtype}
-                retype={this.props.retype}/>
+                retype={this.props.retype}
+                handleFChange={this.props.handleFChange}/>
   <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
   <ButtonGroup>
   <Button block onClick={this.props.changed_img}>切换影像底图</Button>
@@ -293,10 +300,13 @@ class App extends Component{
       lng:'',
       lat:'',
       kindlist:new Array(),
-      layers:{},
+      guanglayers:{},
+      shenglayers:{},
+      relayers:{},
       changed:false,
       num:1,
       sheng:false,
+      refujia:{},
       wendu:'',
       shidu:'',
       fengsu:''
@@ -327,6 +337,7 @@ class App extends Component{
     this.handleKChange=this.handleKChange.bind(this);
     this.handleWChange=this.handleWChange.bind(this);
     this.handleYChange=this.handleYChange.bind(this);
+    this.handleFChange=this.handleFChange.bind(this);
     this.cancelKChange=this.cancelKChange.bind(this);
     this.onChange=this.onChange.bind(this);
     this.handleLocate=this.handleLocate.bind(this);
@@ -337,6 +348,16 @@ class App extends Component{
     this.changed_img=this.changed_img.bind(this);
     this.deleteChange=this.deleteChange.bind(this);
     this.cancelWChange=this.cancelWChange.bind(this);
+  }
+  handleFChange(id,wendu,shidu,fengsu)
+  {
+    if(!(id in this.state.refujia))
+    {
+      let tempdata=this.state.refujia;
+      tempdata[id]=[wendu,shidu,fengsu];
+      this.setState({refujia:tempdata});
+      console.log([wendu,shidu,fengsu]);
+    }
   }
   changed_img(){
     var img= new ol.layer.Tile({
@@ -389,20 +410,60 @@ class App extends Component{
    // this.map.addLayer(map_cta,0);
   }
   onChange(e,kind){
+    let templayer;
    if(kind=="light")
    { 
+      let p=new Promise((resolve,reject)=>{
+       templayer=this.state.guanglayers;
+       resolve("success");
+        reject('reject')
+        
+      })
+      p.then(function(value){ 
+        Object.keys(templayer).forEach(function(key){
+            templayer[key].setOpacity(e/100);
+      });
+      },
+        function(value){alert("fail")}
+      );
+      
       this.setState({lvalue:e});
-      this.state.lightlayer.setOpacity(e/100);
     }
    if(kind=="thermo")
    {
+    let p=new Promise((resolve,reject)=>{
+       templayer=this.state.relayers;
+       resolve("success");
+        reject('reject')
+        
+      })
+      p.then(function(value){ 
+        Object.keys(templayer).forEach(function(key){
+            templayer[key].setOpacity(e/100);
+      });
+      },
+        function(value){alert("fail")}
+      );
     this.setState({tvalue:e});
-    this.state.thermolayer.setOpacity(e/100);
+    //this.state.thermolayer.setOpacity(e/100);
    }
    if(kind=="sound")
     {
+      let p=new Promise((resolve,reject)=>{
+       templayer=this.state.shenglayers;
+       resolve("success");
+        reject('reject')
+        
+      })
+      p.then(function(value){ 
+        Object.keys(templayer).forEach(function(key){
+            templayer[key].setOpacity(e/100);
+      });
+      },
+        function(value){alert("fail")}
+      );
       this.setState({svalue:e});
-      this.state.soundlayer.setOpacity(e/100);
+      //this.state.soundlayer.setOpacity(e/100);
     }
   }
   oninputchange(e){
@@ -437,36 +498,46 @@ class App extends Component{
     {
       //alert(this.state.guangyuzhi);
       temp="guang"+this.state.guangyuzhi;
+      this.map.removeLayer(this.state.guanglayers[temp]);
     }
     if(e=="sound")
     {
       //alert(this.state.shengyuzhi);
       temp="sheng"+this.state.shengyuzhi;
+      this.map.removeLayer(this.state.shenglayers[temp]);
     }
     if(e=="thermo")
     {
       //alert(this.state.reyuzhi);
       temp="re"+this.state.reyuzhi;
+      this.map.removeLayer(this.state.relayers[temp]);
     }
-    this.map.removeLayer(this.state.layers[temp]);
+    //this.map.removeLayer(this.state.layers[temp]);
   }
   cancelWChange(id,type){
     //alert(type);
+    let temp;
     if(type=="光")
     {
       type="guang";
+      temp=type+id;
+      this.map.removeLayer(this.state.guanglayers[temp]);
     }
     if(type=="声")
     {
       type="sheng";
+      temp=type+id;
+      this.map.removeLayer(this.state.shenglayers[temp]);
     }
     else if(type=="人" || type==null)
     {
       type="re";
+      temp=type+id;
+      this.map.removeLayer(this.state.relayers[temp]);
     }
-    let temp=type+id;
+    
     //alert(temp);
-    this.map.removeLayer(this.state.layers[temp]);
+    //this.map.removeLayer(this.state.layers[temp]);
 
   }
   handleKChange(e){
@@ -484,6 +555,7 @@ class App extends Component{
     {
       //alert(this.state.reyuzhi);
       this.handleAddLayer("re",this.state.reyuzhi);
+      this.pushData("thermo");
     }
   }
   
@@ -506,9 +578,9 @@ class App extends Component{
            });
       var tempdata;
       let p=new Promise((resolve,reject)=>{
-       tempdata=this.state.layers;
+       tempdata=this.state.guanglayers;
         tempdata[tuceng]=layer1;
-        this.setState({layers:tempdata});
+        this.setState({guanglayers:tempdata});
        //console.log("abc");
        resolve("success");
         reject('reject')
@@ -516,7 +588,7 @@ class App extends Component{
       })
       //p.bind(this);
       p.then(function(value){ console.log(tempdata)},function(value){alert("fail")});
-      layer1.setOpacity(this.state.tvalue/100);
+      layer1.setOpacity(this.state.lvalue/100);
       //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
     }
@@ -535,10 +607,10 @@ class App extends Component{
                  source:wmsSource
            });
 
-      var tempdata=this.state.layers;
+      var tempdata=this.state.shenglayers;
       tempdata[tuceng]=layer1;
-      this.setState({layers:tempdata});
-      layer1.setOpacity(this.state.tvalue/100);
+      this.setState({shenglayers:tempdata});
+      layer1.setOpacity(this.state.svalue/100);
       //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
     }
@@ -558,9 +630,9 @@ class App extends Component{
                  source:wmsSource
            });
       let p=new Promise((resolve,reject)=>{
-       tempdata=this.state.layers;
+       tempdata=this.state.relayers;
         tempdata[tuceng]=layer1;
-        this.setState({layers:tempdata});
+        this.setState({relayers:tempdata});
        //console.log("abc");
        resolve("success");
         reject('reject')
@@ -588,7 +660,25 @@ class App extends Component{
     if(value=="人")
     {
       this.handleAddLayer("re",id)
+      this.pushData(id);
     }
+  }
+  pushData(id)
+  {
+    console.log(this.state.refujia);
+    let data=this.state.refujia;
+    let p=new Promise((resolve,reject)=>{
+       this.setState({
+          fengsu:data[id][2],
+         wendu:data[id][0],
+         shidu:data[id][1]
+        })
+       resolve("success");
+        reject('reject')
+        
+      })
+      //p.bind(this);
+      p.then(function(value){ console.log("success")},function(value){alert("fail")});
   }
   handleYChange(type,id){
     if(type=="光" && this.state.guangyuzhi!=id)
@@ -661,7 +751,7 @@ class App extends Component{
     return (
         <div id="all">
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-          <div id="tshow">{this.state.wendu} {this.state.shidu} {this.state.fengsu}</div>
+          <div id="tshow">温度：{this.state.wendu} 湿度： {this.state.shidu} 风速： {this.state.fengsu}</div>
   <Frontend 
             kind={this.state.kind} 
             wuzhong={this.state.wuzhong}
@@ -673,6 +763,7 @@ class App extends Component{
             handleKChange={this.handleKChange}
             handleYChange={this.handleYChange}
             handleWChange={this.handleWChange}
+            handleFChange={this.handleFChange}
             changed_ter={this.changed_ter}
             changed_vec={this.changed_vec}
             changed_img={this.changed_img}
