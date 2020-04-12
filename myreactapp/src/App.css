@@ -36,23 +36,28 @@ li{
 }
 #choices{
   background-color: white;
-  width:260px;
+  width:300px;
   position:relative;
   top:240px;
   left: 7px;
+}
+#r{
+  background-color: white;
+  width:300px;
+  position:relative;
+  
   max-height: calc(58vh);
   overflow: auto;
   overflow-x: hidden;
 }
 #animals{
   background-color: white;
-  width:250px;
+  width:300px;
   font-weight: 100;
 }
 .yuzhi{
   width: 70px;
 }
-
 #suggestId{width:150px;}
 #searchResultPanel{border:1px solid #C0C0C0;width:150px;height:auto; display:none;}
 #vmaps{
@@ -62,8 +67,9 @@ li{
 }
 #legend img{
   margin-top: 4px;
-  width: 250px;
+  width: 280px;
 }
+
 #dbutton{
   width:20%;
 }

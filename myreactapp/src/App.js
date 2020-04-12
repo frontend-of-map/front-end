@@ -36,7 +36,7 @@ class Shenglegend extends React.Component{
         <div id="legend">
         <img src="./sound.jpeg"/>
  <div class="formula">
-        <label>单位：</label><span>dB</span>
+        <label>单位：</label><InlineMath math="dB"></InlineMath>
  </div>
  </div>
     )
@@ -73,6 +73,8 @@ class Variousmaps extends React.Component{
                   id:"" };
     this.handleKChange=this.handleKChange.bind(this);
     this.onOChange=this.onOChange.bind(this);
+    this.oninputchange=this.oninputchange.bind(this);
+    this.handleLocate=this.handleLocate.bind(this);
     //alert(this.props.guangtype)
   }
   onOChange(e){
@@ -89,7 +91,12 @@ class Variousmaps extends React.Component{
       this.props.cancelKChange(e.target.value);
     }
   }
-  
+  handleLocate(e){
+    this.props.handleLocate(e);
+  }
+  oninputchange(e){
+    this.props.oninputchange(e.target.value);
+  }
   render(){
     if(this.state.guangtype!=undefined){
       //alert(this.state.guangtype)
@@ -100,10 +107,12 @@ class Variousmaps extends React.Component{
         id="Light"
         maxValue={100}
         minValue={0}
+        className="inputrange"
         value={this.state.lvalue}
         onChange={lvalue => this.setState({ lvalue,id:"light" })}
         onChangeComplete={this.onOChange} />   
       <Guanglegend/>
+      <div className="dituming">光污染预警地图</div>
       <Animals  
             kind={this.props.kind}
             wuzhong={this.props.wuzhong}
@@ -122,6 +131,7 @@ class Variousmaps extends React.Component{
         onChange={svalue => this.setState({ svalue,id:"sound" })}
         onChangeComplete={this.onOChange} /> 
       <Shenglegend/>
+      <div className="dituming">声污染预警地图</div>
       <Animals  
             kind={this.props.kind}
             data={this.props.shengtype}
@@ -140,6 +150,7 @@ class Variousmaps extends React.Component{
         onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
         onChangeComplete={this.onOChange} />
       <Relegend/> 
+      <div className="dituming">热源预警地图</div>
       <Animals  
             kind={this.props.kind}
             data={this.props.retype}
@@ -149,6 +160,12 @@ class Variousmaps extends React.Component{
             cancelWChange={this.props.cancelWChange}
             handleFChange={this.props.handleFChange}/>
       <Renlegend/>
+      <div id="r-result">定位（请输入城市名称）<input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>确定</button></div>
+  <ButtonGroup>
+  <Button block onClick={this.props.changed_img}>切换影像底图</Button>
+  <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
+  <Button block onClick={this.props.changed_ter}>切换地形底图</Button>
+  </ButtonGroup>
       </div>
     );
   }
@@ -228,10 +245,9 @@ class Frontend extends React.Component{
     super(props);
     //alert(this.props.guangtype);
     //this.state={guangtype:this.props.guangtype};
-    this.state={guangtype:this.props.guangtype,firstVisible:true,secondVisible:true};
-    this.onfirstClick=this.onfirstClick.bind(this);
-    this.onsecondClick=this.onsecondClick.bind(this);    
-    this.oninputchange=this.oninputchange.bind(this);
+    this.state={guangtype:this.props.guangtype,firstVisible:true};
+    this.onfirstClick=this.onfirstClick.bind(this);    
+    //this.oninputchange=this.oninputchange.bind(this);
     this.handleLocate=this.handleLocate.bind(this);
   }
   handleLocate(e){
@@ -240,17 +256,14 @@ class Frontend extends React.Component{
   onfirstClick(){
     this.setState({firstVisible: !this.state.firstVisible});
   }
-  onsecondClick(){
-    this.setState({secondVisible: !this.state.secondVisible});
-  }
-  oninputchange(e){
-    this.props.oninputchange(e.target.value);
-  }
+  
   render(){
     return(
       <div id="choices">
-      <div className="title">物理环境地图及风险物种</div>
-      <Variousmaps 
+      <div onClick={this.onfirstClick} className="title">物理环境地图及风险物种</div>
+      <div id="r">
+      {
+      this.state.firstVisible?<Variousmaps 
                 value={this.props.value} 
                 onChange={this.props.onChange}
                 kind={this.props.kind}  
@@ -263,14 +276,16 @@ class Frontend extends React.Component{
                 guangtype={this.props.guangtype}
                 shengtype={this.props.shengtype}
                 retype={this.props.retype}
-                handleFChange={this.props.handleFChange}/>
-  <div id="r-result"><input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>定位</button></div>
-  <ButtonGroup>
-  <Button block onClick={this.props.changed_img}>切换影像底图</Button>
-  <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
-  <Button block onClick={this.props.changed_ter}>切换地形底图</Button>
-  </ButtonGroup>
-  
+                handleFChange={this.props.handleFChange}
+                onChange={this.onChange}
+                handleLocate={this.handleLocate}
+                oninputchange={this.props.oninputchange}
+                changed_ter={this.changed_ter}
+                changed_vec={this.changed_vec}
+                changed_img={this.changed_img}
+                searchcity={this.props.searchcity}/>:null
+              }
+  </div>
       </div>
     )
   }
@@ -772,7 +787,8 @@ class App extends Component{
             sheng={this.state.sheng}
             guangtype={this.state.guangtype}
             shengtype={this.state.shengtype}
-            retype={this.state.retype}/>
+            retype={this.state.retype}
+            searchcity={this.state.searchcity}/>
           
           </div>
     )
