@@ -277,7 +277,7 @@ class Frontend extends React.Component{
                 shengtype={this.props.shengtype}
                 retype={this.props.retype}
                 handleFChange={this.props.handleFChange}
-                onChange={this.onChange}
+                
                 handleLocate={this.handleLocate}
                 oninputchange={this.props.oninputchange}
                 changed_ter={this.changed_ter}
