@@ -280,9 +280,9 @@ class Frontend extends React.Component{
                 
                 handleLocate={this.handleLocate}
                 oninputchange={this.props.oninputchange}
-                changed_ter={this.changed_ter}
-                changed_vec={this.changed_vec}
-                changed_img={this.changed_img}
+                changed_ter={this.props.changed_ter}
+                changed_vec={this.props.changed_vec}
+                changed_img={this.props.changed_img}
                 searchcity={this.props.searchcity}/>:null
               }
   </div>
@@ -766,7 +766,7 @@ class App extends Component{
     return (
         <div id="all">
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-          <div id="tshow">温度：{this.state.wendu} 湿度： {this.state.shidu} 风速： {this.state.fengsu}</div>
+          <div id="tshow">温度：{this.state.wendu} &#8451; 湿度： {this.state.shidu}% 风速： {this.state.fengsu}m/s </div>
   <Frontend 
             kind={this.state.kind} 
             wuzhong={this.state.wuzhong}
