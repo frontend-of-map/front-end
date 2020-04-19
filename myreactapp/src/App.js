@@ -214,11 +214,11 @@ class Animals extends React.Component{
     }
       else if(rowinfo["type"]==null)
       { 
-        this.props.handleFChange("thermo",rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
+        this.props.handleFChange("thermo",rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"],rowinfo["yunLiang"]);
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
       }
       else {
-        this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
+        //this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
         onerow.push(
         <tr>
         <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
@@ -321,10 +321,10 @@ class App extends Component{
       changed:false,
       num:1,
       sheng:false,
-      refujia:{},
       wendu:'',
       shidu:'',
-      fengsu:''
+      fengsu:'',
+      tianqi:''
     }
     this.map= new ol.Map({
       layers: [new ol.layer.Tile({
@@ -364,15 +364,18 @@ class App extends Component{
     this.deleteChange=this.deleteChange.bind(this);
     this.cancelWChange=this.cancelWChange.bind(this);
   }
-  handleFChange(id,wendu,shidu,fengsu)
+  handleFChange(id,wendu,shidu,fengsu,tianqi)
   {
-    if(!(id in this.state.refujia))
-    {
-      let tempdata=this.state.refujia;
-      tempdata[id]=[wendu,shidu,fengsu];
-      this.setState({refujia:tempdata});
-      console.log([wendu,shidu,fengsu]);
-    }
+      if(this.state.wendu=='')
+      {
+         this.setState({
+             fengsu:wendu,
+              wendu:shidu,
+             shidu:fengsu,
+            tianqi:tianqi
+         });
+      }
+
   }
   changed_img(){
     var img= new ol.layer.Tile({
@@ -570,7 +573,7 @@ class App extends Component{
     {
       //alert(this.state.reyuzhi);
       this.handleAddLayer("re",this.state.reyuzhi);
-      this.pushData("thermo");
+      
     }
   }
   
@@ -675,25 +678,8 @@ class App extends Component{
     if(value=="人")
     {
       this.handleAddLayer("re",id)
-      this.pushData(id);
+      //this.pushData(id);
     }
-  }
-  pushData(id)
-  {
-    console.log(this.state.refujia);
-    let data=this.state.refujia;
-    let p=new Promise((resolve,reject)=>{
-       this.setState({
-          fengsu:data[id][2],
-         wendu:data[id][0],
-         shidu:data[id][1]
-        })
-       resolve("success");
-        reject('reject')
-        
-      })
-      //p.bind(this);
-      p.then(function(value){ console.log("success")},function(value){alert("fail")});
   }
   handleYChange(type,id){
     if(type=="光" && this.state.guangyuzhi!=id)
@@ -766,7 +752,7 @@ class App extends Component{
     return (
         <div id="all">
           <div id="allmap" style={{position:"absolute",top:0,left:0,width:'100vw',height:'100vh',}}> </div>
-          <div id="tshow">温度：{this.state.wendu} &#8451; 湿度： {this.state.shidu}% 风速： {this.state.fengsu}m/s </div>
+          <div id="tshow">天气:{this.state.tianqi}  温度:{this.state.wendu} &#8451; 湿度:{this.state.shidu}% 风速:{this.state.fengsu}m/s </div>
   <Frontend 
             kind={this.state.kind} 
             wuzhong={this.state.wuzhong}
