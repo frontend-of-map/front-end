@@ -1,27 +1,9 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
 .input-range{
   max-width:235px;
-  margin-bottom: 15px;
-  
+  margin:auto;
+  margin-bottom: 18px;
+  margin-top:20px;
   max-height: 10px;
-  left:5px;
   right: 5px;
 }
 .App-link {
@@ -30,6 +12,11 @@
 }
 li{
   display: inline;
+}
+.mtitle{
+  margin-top: 2px;
+  background-color: lightgrey;
+  text-align: center;
 }
 #input{
   width: 100px;
@@ -67,9 +54,14 @@ li{
 }
 #legend img{
   margin-top: 4px;
-  width: 280px;
+  max-width: 280px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
-
+#anquan img{
+margin-top: 4px;
+  max-width: 100%;
+}
 #dbutton{
   width:20%;
 }
@@ -98,9 +90,3 @@ height: 100%;width:100%;overflow: hidden;}
 th{
   font-weight: 400;
 }
-.link-top {
-            width: 100%;
-            margin-top: 5px;
-            height: 1px;
-            border-top: solid lightgrey 2px;
-        }

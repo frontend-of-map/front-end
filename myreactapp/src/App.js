@@ -22,7 +22,7 @@ class Guanglegend extends React.Component{
     //alert("ok");
     return(
       <div id="legend">
-        <img src="./light.jpeg"/>
+        <img src="./光环境图标.jpg"/>
 <div className="formula">
         <label>单位：</label><InlineMath math="W/(m^2⋅sr⋅μm)"></InlineMath>
  </div>
@@ -47,6 +47,16 @@ class Relegend extends React.Component{
     return(
         <div id="legend">
         <img src="./ren.jpeg"/>
+
+ </div>
+    )
+  }
+}
+class Anquanyujing extends React.Component{
+  render(){
+    return(
+        <div id="anquan">
+        <img src="./安全和预警.jpg"/>
 
  </div>
     )
@@ -102,7 +112,7 @@ class Variousmaps extends React.Component{
       //alert(this.state.guangtype)
     return(
       <div id="vmaps" className="bold">
-      <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>光环境地图
+      <div className="mtitle">光环境</div>
       <InputRange
         id="Light"
         maxValue={100}
@@ -110,9 +120,10 @@ class Variousmaps extends React.Component{
         className="inputrange"
         value={this.state.lvalue}
         onChange={lvalue => this.setState({ lvalue,id:"light" })}
-        onChangeComplete={this.onOChange} />   
+        onChangeComplete={this.onOChange} /> 
+      <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>闽三角光环境地图  
       <Guanglegend/>
-      <div className="dituming">光污染预警地图</div>
+      <div className="dituming">闽三角光污染预警地图</div>
       <Animals  
             kind={this.props.kind}
             wuzhong={this.props.wuzhong}
@@ -121,8 +132,19 @@ class Variousmaps extends React.Component{
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
             handleFChange={this.props.handleFChange}/>   
-      <div class="link-top"></div>
-      <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
+      <input id="xialight" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>厦门岛光环境地图  
+      <Guanglegend/>
+      <div className="dituming">厦门岛光污染预警地图</div>
+      <Animals  
+            kind={this.props.kind}
+            wuzhong={this.props.wuzhong}
+            data={this.props.xiamentype}
+            handleYChange={this.props.handleYChange}
+            handleWChange={this.props.handleWChange}
+            cancelWChange={this.props.cancelWChange}
+            handleFChange={this.props.handleFChange}/>  
+      <Anquanyujing/>
+      <div className="mtitle">声环境</div>
       <InputRange
         id="sound"
         maxValue={100}
@@ -130,6 +152,7 @@ class Variousmaps extends React.Component{
         value={this.state.svalue}
         onChange={svalue => this.setState({ svalue,id:"sound" })}
         onChangeComplete={this.onOChange} /> 
+      <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <Shenglegend/>
       <div className="dituming">声污染预警地图</div>
       <Animals  
@@ -140,8 +163,8 @@ class Variousmaps extends React.Component{
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
             handleFChange={this.props.handleFChange}/>
-      <div class="link-top"></div>
-      <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
+      <Anquanyujing/>
+      <div className="mtitle">热环境</div>
       <InputRange
         id="thermo"
         maxValue={100}
@@ -149,6 +172,7 @@ class Variousmaps extends React.Component{
         value={this.state.tvalue}
         onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
         onChangeComplete={this.onOChange} />
+      <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <Relegend/> 
       <div className="dituming">热源预警地图</div>
       <Animals  
@@ -276,6 +300,7 @@ class Frontend extends React.Component{
                 guangtype={this.props.guangtype}
                 shengtype={this.props.shengtype}
                 retype={this.props.retype}
+                xiamentype={this.props.xiamentype}
                 handleFChange={this.props.handleFChange}
                 
                 handleLocate={this.handleLocate}
@@ -306,18 +331,18 @@ class App extends Component{
       guangtype:[],
       shengtype:[],
       retype:[],
+      xiamentype:[],
       guangyuzhi:'',
       shengyuzhi:'',
       reyuzhi:'',
-      lightlayer:new ol.layer.Tile({}),
-      thermolayer:new ol.layer.Tile({}),
-      soundlayer:new ol.layer.Tile({}),
+      xiaguangyuzhi:'',
       lng:'',
       lat:'',
       kindlist:new Array(),
       guanglayers:{},
       shenglayers:{},
       relayers:{},
+      xiaguanglayers:{},
       changed:false,
       num:1,
       sheng:false,
@@ -369,9 +394,9 @@ class App extends Component{
       if(this.state.wendu=='')
       {
          this.setState({
-             fengsu:wendu,
-              wendu:shidu,
-             shidu:fengsu,
+             fengsu:fengsu,
+              wendu:wendu,
+             shidu:shidu,
             tianqi:tianqi
          });
       }
@@ -428,11 +453,12 @@ class App extends Component{
    // this.map.addLayer(map_cta,0);
   }
   onChange(e,kind){
-    let templayer;
+    let templayer,templayer2;
    if(kind=="light")
    { 
       let p=new Promise((resolve,reject)=>{
        templayer=this.state.guanglayers;
+       templayer2=this.state.xiaguanglayers;
        resolve("success");
         reject('reject')
         
@@ -440,6 +466,9 @@ class App extends Component{
       p.then(function(value){ 
         Object.keys(templayer).forEach(function(key){
             templayer[key].setOpacity(e/100);
+      });
+        Object.keys(templayer2).forEach(function(key){
+            templayer2[key].setOpacity(e/100);
       });
       },
         function(value){alert("fail")}
@@ -518,6 +547,11 @@ class App extends Component{
       temp="guang"+this.state.guangyuzhi;
       this.map.removeLayer(this.state.guanglayers[temp]);
     }
+    if(e=="xiaguang")
+    {
+      temp="xiaguang"+this.state.xiaguangyuzhi;
+      this.map.removeLayer(this.state.xiaguanglayers[temp]);
+    }
     if(e=="sound")
     {
       //alert(this.state.shengyuzhi);
@@ -541,6 +575,12 @@ class App extends Component{
       temp=type+id;
       this.map.removeLayer(this.state.guanglayers[temp]);
     }
+    if(type=="厦门光地图")
+    {
+      type="xiaguang";
+      temp=type+id;
+      this.map.removeLayer(this.state.xiaguanglayers[temp]);
+    }
     if(type=="声")
     {
       type="sheng";
@@ -563,6 +603,10 @@ class App extends Component{
     {
       //alert(this.state.guangyuzhi);
       this.handleAddLayer("guang",this.state.guangyuzhi);
+    }
+    if(e=="xialight")
+    {
+      this.handleAddLayer("xiaguang",this.state.xiaguangyuzhi);
     }
     if(e=="sound")
     {
@@ -606,6 +650,36 @@ class App extends Component{
       })
       //p.bind(this);
       p.then(function(value){ console.log(tempdata)},function(value){alert("fail")});
+      layer1.setOpacity(this.state.lvalue/100);
+      //this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+    }
+    if(type=="xiaguang")
+    {
+      var tuceng=type+id;
+    var wmsSource = new ol.source.TileWMS({
+          url:'http://118.31.56.186:8086/geoserver/test2/wms',//根据自己的服务器填写
+            params:{
+              'LAYERS':tuceng,//要加载的图层，可以为多个
+               'TILED':false,
+            },
+            serverType:'geoserver',//服务器类型
+          })
+      var layer1 = new ol.layer.Tile({
+                 source:wmsSource
+           });
+      var tempdata;
+      let p=new Promise((resolve,reject)=>{
+       tempdata=this.state.xiaguanglayers;
+        tempdata[tuceng]=layer1;
+        this.setState({xiaguanglayers:tempdata});
+       //console.log("abc");
+       resolve("success");
+        reject('reject')
+        
+      })
+      //p.bind(this);
+      p.then(function(value){ console.log(tempdata)},function(value){alert(tuceng)});
       layer1.setOpacity(this.state.lvalue/100);
       //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)
@@ -671,6 +745,10 @@ class App extends Component{
     {
         this.handleAddLayer("guang",id);
     }
+    if(value=="厦门光地图")
+    {
+        this.handleAddLayer("xiaguang",id);
+    }
     if(value=="声")
     {
       this.handleAddLayer("sheng",id);
@@ -686,6 +764,10 @@ class App extends Component{
     {
       this.setState({guangyuzhi:id});
       //alert("hi");
+    }
+    if(type=="厦门光地图" && this.state.xiaguangyuzhi!=id)
+    {
+      this.setState({xiaguangyuzhi:id});
     }
     if(type=="声" && this.state.shengyuzhi!=id)
     {
@@ -710,6 +792,20 @@ class App extends Component{
         type:'GET',
         success: function(data) {
           this.setState({guangtype:data})
+         // alert(data[0]["species"])
+        }.bind(this),
+        error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+            alert(thrownError);
+        }.bind(this)
+      }); 
+    $.ajax({
+        url: "http://118.31.56.186:80/api/xiaguanglayers",
+        dataType: 'json',
+        cache: false,
+        type:'GET',
+        success: function(data) {
+          this.setState({xiamentype:data})
          // alert(data[0]["species"])
         }.bind(this),
         error: function (xhr, ajaxOptions, thrownError) {
@@ -774,6 +870,7 @@ class App extends Component{
             guangtype={this.state.guangtype}
             shengtype={this.state.shengtype}
             retype={this.state.retype}
+            xiamentype={this.state.xiamentype}
             searchcity={this.state.searchcity}/>
           
           </div>
