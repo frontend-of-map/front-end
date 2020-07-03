@@ -56,7 +56,7 @@ class Anquanyujing extends React.Component{
   render(){
     return(
         <div id="anquan">
-        <img src="./预警图标.jpeg"/>
+        <img src="./安全和预警图标.jpg"/>
 
  </div>
     )
