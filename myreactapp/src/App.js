@@ -36,7 +36,7 @@ class Shenglegend extends React.Component{
         <div id="legend">
         <img src="./sound.jpeg"/>
  <div class="formula">
-        <label>单位：</label><InlineMath math="dB"></InlineMath>
+        <label>单位：</label><InlineMath math="dB(A)"></InlineMath>
  </div>
  </div>
     )
@@ -56,7 +56,7 @@ class Anquanyujing extends React.Component{
   render(){
     return(
         <div id="anquan">
-        <img src="./安全和预警.jpg"/>
+        <img src="./预警图标.jpeg"/>
 
  </div>
     )
@@ -131,8 +131,9 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
-            handleFChange={this.props.handleFChange}/>   
-      <input id="xialight" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>厦门岛光环境地图  
+            handleFChange={this.props.handleFChange}/> 
+      <Anquanyujing/>  
+      <input id="xialight" type="checkbox" name="creature" value="xialight" onClick={this.handleKChange}/>厦门岛光环境地图  
       <Guanglegend/>
       <div className="dituming">厦门岛光污染预警地图</div>
       <Animals  
@@ -184,7 +185,6 @@ class Variousmaps extends React.Component{
             cancelWChange={this.props.cancelWChange}
             handleFChange={this.props.handleFChange}/>
       <Renlegend/>
-      <div id="r-result">定位（请输入城市名称）<input type="text" id="suggestId" value={this.props.searchcity} onChange={this.oninputchange}/><button type="button" onClick={this.handleLocate}>确定</button></div>
   <ButtonGroup>
   <Button block onClick={this.props.changed_img}>切换影像底图</Button>
   <Button block onClick={this.props.changed_vec}>切换街道底图</Button>
@@ -240,6 +240,10 @@ class Animals extends React.Component{
       { 
         this.props.handleFChange("thermo",rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"],rowinfo["yunLiang"]);
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
+      }
+      else if(rowinfo["species"]=="其他")
+      {
+
       }
       else {
         //this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
@@ -380,9 +384,9 @@ class App extends Component{
     this.handleFChange=this.handleFChange.bind(this);
     this.cancelKChange=this.cancelKChange.bind(this);
     this.onChange=this.onChange.bind(this);
-    this.handleLocate=this.handleLocate.bind(this);
+   // this.handleLocate=this.handleLocate.bind(this);
     this.handleAddLayer=this.handleAddLayer.bind(this);
-    this.oninputchange=this.oninputchange.bind(this);
+    //this.oninputchange=this.oninputchange.bind(this);
     this.changed_ter=this.changed_ter.bind(this);
     this.changed_vec=this.changed_vec.bind(this);
     this.changed_img=this.changed_img.bind(this);
@@ -513,6 +517,7 @@ class App extends Component{
       //this.state.soundlayer.setOpacity(e/100);
     }
   }
+  /*
   oninputchange(e){
     this.setState({searchcity:e});
   }
@@ -531,7 +536,7 @@ class App extends Component{
     }      
    }, 
   this.state.searchcity);//规定用户一定要输入城市
-}
+}*/
   deleteChange(e){
     var a=this.state.kindlist.indexOf(e);
     //alert("hi");
