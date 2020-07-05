@@ -24,7 +24,7 @@ class Guanglegend extends React.Component{
       <div id="legend">
         <img src="./光环境图标.jpg"/>
 <div className="formula">
-        <label>单位：</label><InlineMath math="W/(m^2⋅sr⋅μm)"></InlineMath>
+        <label>辐亮度</label><InlineMath math="nW/(cm^2⋅sr)"></InlineMath>
  </div>
  </div>
       )
@@ -703,10 +703,26 @@ class App extends Component{
       var layer1 = new ol.layer.Tile({
                  source:wmsSource
            });
-
+/*
       var tempdata=this.state.shenglayers;
       tempdata[tuceng]=layer1;
       this.setState({shenglayers:tempdata});
+      layer1.setOpacity(this.state.svalue/100);
+      //this.setState({lightlayer:layer1});
+      this.map.addLayer(layer1,1)
+      */
+      let p=new Promise((resolve,reject)=>{
+       tempdata=this.state.shenglayers;
+        tempdata[tuceng]=layer1;
+        this.setState({shenglayers:tempdata});
+       //console.log("abc");
+       resolve("success");
+        reject('reject')
+        
+      })
+      //p.bind(this);
+      p.then(function(value){ console.log(tempdata)},function(value){alert("fail")});
+      
       layer1.setOpacity(this.state.svalue/100);
       //this.setState({lightlayer:layer1});
       this.map.addLayer(layer1,1)

@@ -52,11 +52,14 @@ li{
   margin-left:2px;
   margin-right: 2px;
 }
-#legend img{
+#legend{
   margin-top: 4px;
-  max-width: 270px;
+  
   margin-left: 10px;
   margin-right: 10px;
+}
+#legend img{
+  max-width: 270px;
 }
 #anquan img{
 margin-top: 4px;
