@@ -24,7 +24,7 @@ class Guanglegend extends React.Component{
       <div id="legend">
         <img src="./光环境图标.jpg"/>
 <div className="formula">
-        <label>辐亮度</label><InlineMath math="nW/(cm^2⋅sr)"></InlineMath>
+        <label>辐亮度 单位：</label><InlineMath math="nW/(cm^2⋅sr)"></InlineMath>
  </div>
  </div>
       )
@@ -36,7 +36,7 @@ class Shenglegend extends React.Component{
         <div id="legend">
         <img src="./sound.jpeg"/>
  <div class="formula">
-        <label>单位：</label><InlineMath math="dB(A)"></InlineMath>
+        <label>声压级 单位：</label><InlineMath math="dB(A)"></InlineMath>
  </div>
  </div>
     )
@@ -47,7 +47,7 @@ class Relegend extends React.Component{
     return(
         <div id="legend">
         <img src="./ren.jpeg"/>
-
+        <label>生理等效温度 单位：℃</label>
  </div>
     )
   }
@@ -113,6 +113,7 @@ class Variousmaps extends React.Component{
     return(
       <div id="vmaps" className="bold">
       <div className="mtitle">光环境</div>
+      <div id="block">
       <InputRange
         id="Light"
         maxValue={100}
@@ -120,7 +121,10 @@ class Variousmaps extends React.Component{
         className="inputrange"
         value={this.state.lvalue}
         onChange={lvalue => this.setState({ lvalue,id:"light" })}
-        onChangeComplete={this.onOChange} /> 
+        onChangeComplete={this.onOChange} />
+        <div id="col2">不透明度</div>
+
+        </div>
       <input id="light" type="checkbox" name="creature" value="light" onClick={this.handleKChange}/>闽三角光环境地图  
       <Guanglegend/>
       <div className="dituming">闽三角光污染预警地图</div>
@@ -146,6 +150,7 @@ class Variousmaps extends React.Component{
             handleFChange={this.props.handleFChange}/>  
       <Anquanyujing/>
       <div className="mtitle">声环境</div>
+      <div id="block">
       <InputRange
         id="sound"
         maxValue={100}
@@ -153,6 +158,8 @@ class Variousmaps extends React.Component{
         value={this.state.svalue}
         onChange={svalue => this.setState({ svalue,id:"sound" })}
         onChangeComplete={this.onOChange} /> 
+        <div id="col2">不透明度</div>
+        </div>
       <input id="sound" type="checkbox" name="creature" value="sound" onClick={this.handleKChange}/>声环境地图
       <Shenglegend/>
       <div className="dituming">声污染预警地图</div>
@@ -166,6 +173,7 @@ class Variousmaps extends React.Component{
             handleFChange={this.props.handleFChange}/>
       <Anquanyujing/>
       <div className="mtitle">热环境</div>
+      <div id="block">
       <InputRange
         id="thermo"
         maxValue={100}
@@ -173,6 +181,8 @@ class Variousmaps extends React.Component{
         value={this.state.tvalue}
         onChange={tvalue => this.setState({ tvalue,id:"thermo"})}
         onChangeComplete={this.onOChange} />
+        <div id="col2">不透明度</div>
+        </div>
       <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <Relegend/> 
       <div className="dituming">热源预警地图</div>
