@@ -135,7 +135,10 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
-            handleFChange={this.props.handleFChange}/> 
+            handleFChange={this.props.handleFChange}
+            minqitayuzhi={this.props.minqitayuzhi}
+            handleQChange={this.props.handleQChange}
+            handleTChange={this.props.handleTChange}/> 
       <Anquanyujing/>  
       <input id="xialight" type="checkbox" name="creature" value="xialight" onClick={this.handleKChange}/>厦门岛光环境地图  
       <Guanglegend/>
@@ -147,7 +150,10 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
-            handleFChange={this.props.handleFChange}/>  
+            handleFChange={this.props.handleFChange}
+            xiamenqitayuzhi={this.props.xiamenqitayuzhi}
+            handleQChange={this.props.handleQChange}
+            handleTChange={this.props.handleTChange}/>  
       <Anquanyujing/>
       <div className="mtitle">声环境</div>
       <div id="block">
@@ -170,7 +176,10 @@ class Variousmaps extends React.Component{
             handleYChange={this.props.handleYChange}
             handleWChange={this.props.handleWChange}
             cancelWChange={this.props.cancelWChange}
-            handleFChange={this.props.handleFChange}/>
+            handleFChange={this.props.handleFChange}
+            shengqitayuzhi={this.props.shengqitayuzhi}
+            handleQChange={this.props.handleQChange}
+            handleTChange={this.props.handleTChange}/>
       <Anquanyujing/>
       <div className="mtitle">热环境</div>
       <div id="block">
@@ -186,7 +195,7 @@ class Variousmaps extends React.Component{
       <input id="thermo" type="checkbox" name="creature" value="thermo" onClick={this.handleKChange}/>热环境地图
       <Relegend/> 
       <div className="dituming">热源预警地图</div>
-      <Animals  
+      <Remap 
             kind={this.props.kind}
             data={this.props.retype}
             wuzhong={this.props.wuzhong}
@@ -205,10 +214,10 @@ class Variousmaps extends React.Component{
   }
   }
 }
-class Animals extends React.Component{
+class Remap extends React.Component{
   constructor(props){
     super(props);
-    this.state={data:this.props.data,haschosen:false};
+    this.state={data:this.props.data,haschosen:false,qita:[]};
     this.handleWChange=this.handleWChange.bind(this);
     //this.handleYChange=this.handleYChange.bind(this);
   }
@@ -223,47 +232,31 @@ class Animals extends React.Component{
     }
     else
     {
-      this.props.cancelWChange(e.target.id,e.target.value);
+      this.props.cancelWChange(e.target.id,e.target.value,"kind");
     }
     
     //alert(e.target.value);
   }
   render(){
-    let onerow=[];
-    this.props.data.map((rowinfo)=>{
-      if("species" in rowinfo)
-    {
-        if(rowinfo["species"]!="")
-      {onerow.push(
-        <tr>
-        <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
-        <th>{rowinfo["species"]}</th>
-        <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
-        <th>阈值</th>
-        </tr>
-      )}
-      else{
-        this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
-      }
-    }
-      else if(rowinfo["type"]==null)
+    let onerow=[],qita=[];
+    this.props.data.map((rowinfo)=>{  
+      
+      if(rowinfo["type"]==null)
       { 
         this.props.handleFChange("thermo",rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"],rowinfo["yunLiang"]);
         this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
       }
-      else if(rowinfo["species"]=="其他")
-      {
-
-      }
       else {
         //this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
         onerow.push(
+        <div>
         <tr>
         <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
         <th>{rowinfo["type"]}</th>
-        <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
-        <th>阈值</th>
+        <th> 7~31 </th>
+        <th> 舒适范围 </th>
         </tr>
+        </div>
       )
       }
     }
@@ -273,6 +266,131 @@ class Animals extends React.Component{
     <tbody>
     <table>
     {onerow}
+    </table>
+    </tbody>
+    </div>)
+  }
+}
+class Qita extends React.Component{
+  constructor(props){
+    super(props);
+    this.handleWChange=this.handleWChange.bind(this);
+    this.handleTChange=this.handleTChange.bind(this);
+    this.handleQChange=this.handleQChange.bind(this);
+  }
+  handleTChange(e){
+    this.props.handleTChange(this.props.data[0]["type"],e.target.value);
+  }
+  handleWChange(e){
+    if(e.target.checked)
+    {
+       this.props.handleWChange(e.target.id,e.target.value);
+    }
+    else
+    {
+      this.props.cancelWChange(e.target.id,e.target.value,"qita");
+    }
+    
+    //alert(e.target.value);
+  }
+  handleQChange(a,b){
+    this.props.handleQChange(a,b);
+  }
+  render(){
+    let options=[];
+    if(this.props.data.length!=0){
+    this.handleQChange(this.props.data[0]["type"],this.props.data[0]["id"]);
+    this.props.data.map((rowinfo)=>{
+      options.push(
+      <option id={rowinfo["type"]} value={rowinfo["id"]} >{rowinfo["yuZhi"]}</option>
+      )
+    })
+  }
+    //let type=this.props.data[0]["type"]
+    if(this.props.data.length!=0)
+    {return(
+    <div>
+    <tr>
+    <th><input id="qita" type="checkbox" className="creature" value={this.props.data[0]["type"]} onClick={this.handleWChange}/></th>
+    <th>其他</th>
+    <select onChange={this.handleTChange}> 
+    {options}
+    </select>
+    <th>阈值</th>
+    </tr>
+    </div>
+    )}
+    else{
+      return(
+        <div>
+        </div>
+        )
+    }
+  }
+}
+class Animals extends React.Component{
+  constructor(props){
+    super(props);
+    this.state={data:this.props.data,haschosen:false,qita:[]};
+    this.handleWChange=this.handleWChange.bind(this);
+    //this.handleYChange=this.handleYChange.bind(this);
+  }
+  
+  
+  handleWChange(e){
+    this.setState({haschosen:!this.state.haschosen});
+    
+    if(e.target.checked)
+    {
+       this.props.handleWChange(e.target.id,e.target.value);
+    }
+    else
+    {
+      this.props.cancelWChange(e.target.id,e.target.value,"kind");
+    }
+    
+    //alert(e.target.value);
+  }
+  render(){
+    let onerow=[],qita=[];
+    this.props.data.map((rowinfo)=>{  
+      if(rowinfo instanceof Array){
+        //this.setState({qita:rowinfo});
+        //console.log(rowinfo);
+        qita=rowinfo;
+      }
+      else if(rowinfo["species"]==""){
+        this.props.handleYChange(rowinfo["type"],rowinfo["id"]);
+      }
+      else if("species" in rowinfo)
+    {
+      //this.props.handleFChange(rowinfo["id"],rowinfo["wenDu"],rowinfo["shiDu"],rowinfo["fengSu"]);
+        onerow.push(
+        <div>
+        <tr>
+        <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
+        <th>{rowinfo["type"]}</th>
+        <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
+        <th>阈值</th>
+        </tr>
+        </div>
+      )
+    }
+   }
+    )
+    return(
+    <div id="animals">
+    <tbody>
+    <table>
+    {onerow}
+    <Qita data={qita}
+    minqitayuzhi={this.props.minqitayuzhi}
+    xiamenqitayuzhi={this.props.minqitayuzhi}
+    shengqitayuzhi={this.props.shengqitayuzhi}
+    handleQChange={this.props.handleQChange}
+    handleWChange={this.props.handleWChange}
+    cancelWChange={this.props.cancelWChange}
+    handleTChange={this.props.handleTChange}/>
     </table>
     </tbody>
     </div>)
@@ -311,18 +429,22 @@ class Frontend extends React.Component{
                 handleYChange={this.props.handleYChange}
                 handleWChange={this.props.handleWChange}
                 cancelWChange={this.props.cancelWChange}
+                handleQChange={this.props.handleQChange}
                 guangtype={this.props.guangtype}
                 shengtype={this.props.shengtype}
                 retype={this.props.retype}
                 xiamentype={this.props.xiamentype}
                 handleFChange={this.props.handleFChange}
-                
+                handleTChange={this.props.handleTChange}
                 handleLocate={this.handleLocate}
                 oninputchange={this.props.oninputchange}
                 changed_ter={this.props.changed_ter}
                 changed_vec={this.props.changed_vec}
                 changed_img={this.props.changed_img}
-                searchcity={this.props.searchcity}/>:null
+                searchcity={this.props.searchcity}
+                minqitayuzhi={this.props.minqitayuzhi}
+                xiamenqitayuzhi={this.props.minqitayuzhi}
+                shengqitayuzhi={this.props.shengqitayuzhi}/>:null
               }
   </div>
       </div>
@@ -363,7 +485,10 @@ class App extends Component{
       wendu:'',
       shidu:'',
       fengsu:'',
-      tianqi:''
+      tianqi:'',
+      minqitayuzhi:0,
+      xiamenqitayuzhi:0,
+      shengqitayuzhi:0
     }
     this.map= new ol.Map({
       layers: [new ol.layer.Tile({
@@ -393,6 +518,8 @@ class App extends Component{
     this.handleYChange=this.handleYChange.bind(this);
     this.handleFChange=this.handleFChange.bind(this);
     this.cancelKChange=this.cancelKChange.bind(this);
+    this.handleQChange=this.handleQChange.bind(this);
+    this.handleTChange=this.handleTChange.bind(this);
     this.onChange=this.onChange.bind(this);
    // this.handleLocate=this.handleLocate.bind(this);
     this.handleAddLayer=this.handleAddLayer.bind(this);
@@ -562,7 +689,7 @@ class App extends Component{
       temp="guang"+this.state.guangyuzhi;
       this.map.removeLayer(this.state.guanglayers[temp]);
     }
-    if(e=="xiaguang")
+    if(e=="xialight")
     {
       temp="xiaguang"+this.state.xiaguangyuzhi;
       this.map.removeLayer(this.state.xiaguanglayers[temp]);
@@ -581,22 +708,45 @@ class App extends Component{
     }
     //this.map.removeLayer(this.state.layers[temp]);
   }
-  cancelWChange(id,type){
+  cancelWChange(id,type,qita){
+    //console.log("id:"+id+" type:"+type+" qita:"+qita)
     //alert(type);
     let temp;
-    if(type=="光")
+    if(type=="光"&&qita=="qita")
     {
+      id=this.state.minqitayuzhi;
       type="guang";
       temp=type+id;
       this.map.removeLayer(this.state.guanglayers[temp]);
     }
-    if(type=="厦门光地图")
+    else if(type=="光")
+    {
+      //id=this.state.minqitayuzhi;
+      temp=type+id;
+      this.map.removeLayer(this.state.guanglayers[temp]);
+    }
+    
+    if(qita=="qita"&&type=="厦门光地图")
+    {
+      type="xiaguang";
+      console.log(this.state.xiamenqitayuzhi);
+      temp=type+this.state.xiamenqitayuzhi;
+      this.map.removeLayer(this.state.xiaguanglayers[temp]);
+    }
+    else if(type=="厦门光地图")
     {
       type="xiaguang";
       temp=type+id;
       this.map.removeLayer(this.state.xiaguanglayers[temp]);
     }
-    if(type=="声")
+    if(qita=="qita"&&type=="声")
+    {
+      type="sheng";
+      console.log(this.state.shengqitayuzhi);
+      temp=type+this.state.shengqitayuzhi;
+      this.map.removeLayer(this.state.shenglayers[temp]);
+    }
+    else if(type=="声")
     {
       type="sheng";
       temp=type+id;
@@ -771,16 +921,30 @@ class App extends Component{
   }
   
   handleWChange(id,value){
-    
-    if(value=="光")
+    if(id=="qita"){
+        console.log("1"+value);
+        if(value=="光")
+        {
+          this.handleAddLayer("guang",this.state.minqitayuzhi);
+        }
+        if(value=="厦门光地图")
+        {
+          this.handleAddLayer("xiaguang",this.state.xiamenqitayuzhi);
+        }
+        if(value=="声")
+        {
+          this.handleAddLayer("sheng",this.state.shengqitayuzhi);
+        }
+    }
+   else if(value=="光")
     {
         this.handleAddLayer("guang",id);
     }
-    if(value=="厦门光地图")
+   else if(value=="厦门光地图")
     {
         this.handleAddLayer("xiaguang",id);
     }
-    if(value=="声")
+   else if(value=="声")
     {
       this.handleAddLayer("sheng",id);
     }
@@ -810,14 +974,51 @@ class App extends Component{
       this.setState({reyuzhi:id});
     }
   }
-  
+  handleQChange(type,yuzhi){
+    if(type=="光"&&this.state.minqitayuzhi==0)
+    {
+      this.setState({minqitayuzhi:yuzhi});
+      console.log("2"+yuzhi);
+    }
+    if(type=="厦门光地图"&&this.state.xiamenqitayuzhi==0)
+    {
+      this.setState({xiamenqitayuzhi:yuzhi});
+      console.log("2"+yuzhi);
+    }
+    if(type=="声"&&this.state.shengqitayuzhi==0)
+    {
+      this.setState({shengqitayuzhi:yuzhi});
+      console.log("2"+yuzhi);
+    }
+  }
+  handleTChange(type,id){
+    console.log("type:"+type+" id:"+id);
+    if(type=="光"){
+      this.setState({minqitayuzhi:id});
+      console.log("4"+this.state.minqitayuzhi);
+      this.cancelWChange(this.state.minqitayuzhi,"光","qita");
+      this.handleAddLayer("guang",id);
+    }
+    if(type=="厦门光地图"){
+      this.setState({xiamenqitayuzhi:id});
+      console.log("4"+this.state.xiamenqitayuzhi);
+      this.cancelWChange(this.state.xiamenqitayuzhi,"厦门光地图","qita");
+      this.handleAddLayer("xiaguang",id);
+    }
+    if(type=="声"){
+      this.setState({shengqitayuzhi:id});
+      console.log("4"+this.state.shengqitayuzhi);
+      this.cancelWChange(this.state.shengqitayuzhi,"声","qita");
+      this.handleAddLayer("sheng",id);
+    }
+  }
   componentDidMount(){
     this.map.setTarget("allmap"); 
   }
   componentWillMount(){
-       
+     
     $.ajax({
-        url: "http://118.31.56.186:80/api/guanglayers",
+        url: "http://118.31.56.186:80/api/test-guanglayers",
         dataType: 'json',
         cache: false,
         type:'GET',
@@ -830,8 +1031,9 @@ class App extends Component{
             alert(thrownError);
         }.bind(this)
       }); 
+     /**/
     $.ajax({
-        url: "http://118.31.56.186:80/api/xiaguanglayers",
+        url: "http://118.31.56.186:80/api/test-xia-guanglayers",
         dataType: 'json',
         cache: false,
         type:'GET',
@@ -844,8 +1046,9 @@ class App extends Component{
             alert(thrownError);
         }.bind(this)
       }); 
+      
     $.ajax({
-        url: "http://118.31.56.186:80/api/shenglayers",
+        url: "http://118.31.56.186:80/api/test-shenglayers",
         dataType: 'json',
         cache: false,
         type:'GET',
@@ -858,6 +1061,7 @@ class App extends Component{
             alert(thrownError);
         }.bind(this)
       });   
+    
     $.ajax({
         url: "http://118.31.56.186:80/api/relayer",
         dataType: 'json',
@@ -871,7 +1075,8 @@ class App extends Component{
             alert(xhr.status);
             alert(thrownError);
         }.bind(this)
-      });
+      }); 
+      /* */
   };
   
   render(){
@@ -892,6 +1097,8 @@ class App extends Component{
             handleYChange={this.handleYChange}
             handleWChange={this.handleWChange}
             handleFChange={this.handleFChange}
+            handleQChange={this.handleQChange}
+            handleTChange={this.handleTChange}
             changed_ter={this.changed_ter}
             changed_vec={this.changed_vec}
             changed_img={this.changed_img}
@@ -902,8 +1109,10 @@ class App extends Component{
             shengtype={this.state.shengtype}
             retype={this.state.retype}
             xiamentype={this.state.xiamentype}
-            searchcity={this.state.searchcity}/>
-          
+            searchcity={this.state.searchcity}
+            minqitayuzhi={this.state.minqitayuzhi}
+            shengqitayuzhi={this.state.shengqitayuzhi}/>
+            
           </div>
     )
   }
