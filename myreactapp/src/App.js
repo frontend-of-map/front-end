@@ -369,7 +369,7 @@ class Animals extends React.Component{
         <div>
         <tr>
         <th><input id={rowinfo["id"]} type="checkbox" className="creature" value={rowinfo["type"]} onClick={this.handleWChange}/></th>
-        <th>{rowinfo["type"]}</th>
+        <th>{rowinfo["species"]}</th>
         <th><input className="yuzhi" value={rowinfo["yuZhi"]}/></th>
         <th>阈值</th>
         </tr>
