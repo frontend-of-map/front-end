@@ -712,7 +712,7 @@ class App extends Component{
     //console.log("id:"+id+" type:"+type+" qita:"+qita)
     //alert(type);
     let temp;
-    if(type=="光"&&qita=="qita")
+    if(qita=="qita"&&type=="光")
     {
       id=this.state.minqitayuzhi;
       type="guang";
@@ -722,6 +722,7 @@ class App extends Component{
     else if(type=="光")
     {
       //id=this.state.minqitayuzhi;
+      type="guang";
       temp=type+id;
       this.map.removeLayer(this.state.guanglayers[temp]);
     }
