@@ -274,6 +274,7 @@ class Remap extends React.Component{
 class Qita extends React.Component{
   constructor(props){
     super(props);
+    this.state={Visible:false};
     this.handleWChange=this.handleWChange.bind(this);
     this.handleTChange=this.handleTChange.bind(this);
     this.handleQChange=this.handleQChange.bind(this);
@@ -284,10 +285,12 @@ class Qita extends React.Component{
   handleWChange(e){
     if(e.target.checked)
     {
+      this.setState({Visible:true});
        this.props.handleWChange(e.target.id,e.target.value);
     }
     else
     {
+      this.setState({Visible:false});
       this.props.cancelWChange(e.target.id,e.target.value,"qita");
     }
     
@@ -313,9 +316,8 @@ class Qita extends React.Component{
     <tr>
     <th><input id="qita" type="checkbox" className="creature" value={this.props.data[0]["type"]} onClick={this.handleWChange}/></th>
     <th>其他</th>
-    <select onChange={this.handleTChange}> 
-    {options}
-    </select>
+    {this.state.Visible?<select onChange={this.handleTChange}>{options}</select>:null}
+    
     <th>阈值</th>
     </tr>
     </div>
